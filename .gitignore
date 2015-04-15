@@ -1,0 +1,13 @@
+node_modules/
+*.keystore
+*.sw*
+.idea
+*~
+.sass-cache/
+.tmp/
+merges/
+platforms/*
+plugins/*
+www/js/_config.js
+.DS_Store
+*.orig

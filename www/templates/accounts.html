@@ -1,0 +1,39 @@
+<ion-modal-view class="modal-accounts" ng-controller="AccountsCtrl">
+  <ion-header-bar class="bar-positive">
+    <h1 class="title">Pronto!Drive</h1>
+    <div class="buttons" side="secondary">
+      <button class="button button-clear button-icon ion-ios-close-empty" ng-click="closeAccountsModal()"></button>
+    </div>
+  </ion-header-bar>
+  <ion-header-bar class="bar-subheader bar-royal">
+    <h1 class="title">Accounts</h1>
+  </ion-header-bar>
+  <ion-content>
+    <div class="list">
+      <div
+	 ng-repeat="account in accounts"
+	 class="item item-icon-left item-icon-right"
+	 >
+	<button class="button button-icon icon ion-person" ng-class="{on: account.active, off: !account.active}"></button>
+	<h2>
+	  {{account.name}}
+	  <span class="percent">
+	    {{account.usage}}%
+	  </span>
+	</h2>
+	<div class="usage">
+	  <div class="usage-slider" style="width: {{account.usage}}%">
+	  </div>
+	</div>
+	<button class="button button-icon icon ion-ios-gear-outline"></button>
+      </div>
+      <div class="item" ng-show="accounts.length < 1">
+	<h2>No accounts!</h2>
+	<p>Please add an account</p>
+      </div>
+    </div>
+  </ion-content>
+  <ion-footer-bar class="positive accounts-footer">
+    <button ng-click="addAccount()" class="button button-clear icon ion-ios-plus-empty">Add account</a>
+  </ion-footer-bar>
+</ion-modal-view>

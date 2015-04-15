@@ -1,0 +1,38 @@
+<ion-modal-view ng-controller="AccountsCtrl" class="modal-add-account">
+  <ion-header-bar class="bar-positive">
+    <h1 class="title">Pronto!Drive</h1>
+    <div class="buttons" side="secondary">
+      <button class="button button-clear button-icon ion-ios-close-empty" ng-click="closeAddAccountModal()"></button>
+    </div>
+  </ion-header-bar>
+  <ion-header-bar class="bar-subheader bar-royal">
+    <h1 class="title">New account</h1>
+  </ion-header-bar>
+  <form name="accountForm" ng-submit="doAddAccount()" novalidate>
+    <ion-content>
+      <div class="list">
+	<label class="item item-input item-stacked-label">
+	  <span class="input-label">Account</span>
+	  <input type="email" placeholder="user@domain.com" ng-model="accountName" name="accountName" required />
+	</label>
+	<p ng-show="accountForm.accountName.$invalid && !accountForm.accountName.$pristine" class="item item-assertive item-clear">Enter a valid email.</p>
+	<label class="item item-input item-stacked-label">
+	  <span class="input-label">Password</span>
+	  <input type="password" placeholder="Password" ng-model="accountPassword" name="accountPassword" required />
+	</label>
+	<ion-checkbox
+	   ng-model="useSSL"
+	   >
+	  Use SSL
+	</ion-checkbox>
+	<label class="item item-input item-stacked-label">
+	  <span class="input-label">Custom server (optional)</span>
+	  <input type="text" placeholder="drive.domain.com" ng-model="accountServer" name="accountServer">
+	</label>
+      </div>
+    </ion-content>
+    <ion-footer-bar class="add-account-footer">
+      <input type="submit" name="submit" value="Add account" class="button button-block button-balanced" ng-disabled="accountForm.$invalid" />
+    </ion-footer-bar>
+  </form>
+</ion-modal-view>
