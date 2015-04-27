@@ -1,0 +1,22 @@
+<div class="video-wrap">
+  <video id="videoPlayer" preload="auto" poster="img/poster.png">
+    <source src="{{videosrc}}" />
+  </video>
+  <input min="0" max="{{video.duration}}" step="0.01" type="range" ng-model="localTime" />
+  <div class="progress" ng-style="progress"></div>
+</div>
+<div class="list">
+  <div class="item item-button-left item-button-right item-clear item-three-buttons">
+    <button class="button button-clear icon" ng-click="playpause()" ng-class="[playpauseicon]"></button>
+    <button class="button button-clear icon button-second ion-volume-medium" ng-click="volumeSlider=!volumeSlider" ></button>
+    <span class="volume-slider" ng-show="volumeSlider" >
+      <input min="0" max="1" step="0.05" type="range" ng-model="volume.value" ng-change="chnageVolume()" />
+      <div class="progress" ng-style="volume.slider"></div>
+    </span>
+    {{time}}/{{duration}}
+    <button class="button button-clear button-right icon ion-arrow-expand" ng-click="fullScreen()"></button>
+  </div>
+  <div class="item item-clear">
+    <h2>{{title}}</h2>
+  </div>
+</div>

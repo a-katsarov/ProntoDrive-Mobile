@@ -1,0 +1,76 @@
+<ion-modal-view class="modal-add-account">
+<ion-header-bar class="bar-positive ">
+  <h1 class="title">Access Control List</h1>
+  <div class="buttons">
+    <button ng-click="updateACLClose()" class="button button-clear button-icon ion-ios-close-empty"></button>
+  </div>
+</ion-header-bar>
+<ion-header-bar class="bar-royal bar-subheader">
+  <h1 class="title">{{file._fileName}}</h1>
+</ion-header-bar>
+  <ion-content class="has-header">
+    <div style="text-align: center;">
+    </div>
+    <form name="accountForm" ng-submit="updateACL(file)" novalidate>
+      <ion-list class="acl-list">
+	<div ng-repeat="item in acls">
+	  <ion-item class="item-remove-animate item-text-wrap item-button-right">
+	    {{item._key}}
+	    <i class="button button-dark button-small" ng-click="item.viewEdit = !item.viewEdit">
+	      <span ng-show="item.__text == 'ldrw'">Read/Write</span>
+	      <span ng-show="item.__text == 'lr'">Read only</span>
+	      <span ng-show="item.__text != 'ldrw' && item.__text != 'lr'">Undefined</span>
+	    </i>
+	    <ion-option-button class="button-calm" ng-click="item.viewEdit = !item.viewEdit">
+              Edit
+            </ion-option-button>
+            <ion-option-button class="button-assertive" ng-click="acls.splice($index, 1)">
+              Delete
+            </ion-option-button>
+	  </ion-item>
+	  <label class="item item-input item-stable" ng-show="item.viewEdit">
+	    <div class="input-label">
+	      For user:
+	    </div>
+	    <input type="text" ng-model="acls[$index]._key">
+	  </label>
+	  <label class="item item-input item-select item-stable" ng-show="item.viewEdit">
+	    <div class="input-label">
+	      Rights:
+	    </div>
+	    <select ng-model="acls[$index].__text">
+	      <option value="ldrw">Read/Write</option>
+	      <option value="lr">Read only</option>
+	    </select>
+	  </label>
+	  <!-- <ion-checkbox -->
+	  <!--    class="item-stable" -->
+	  <!--    ng-model="item.notify" -->
+	  <!--    ng-show="item.viewEdit" -->
+	  <!--    > -->
+	  <!--   Notify user -->
+      	  <!-- </ion-checkbox> -->
+	</div>
+	<div class="item item-divider">
+	  Add new
+	</div>
+	  <label class="item item-input">
+	    <div class="input-label">
+	      For user:
+	    </div>
+	    <input type="text" ng-model="newACL._key">
+	  </label>
+	  <label class="item item-input item-select">
+	    <div class="input-label">
+	      Rights:
+	    </div>
+	    <select ng-model="newACL.__text">
+	      <option value="ldrw">Read/Write</option>
+	      <option value="lr">Read only</option>
+	    </select>
+	  </label>
+      </ion-list>
+      <input type="submit" name="submit" value="Save" class="button button-block button-balanced item" />
+    </form>
+  </ion-content>
+</ion-modal-view>

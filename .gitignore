@@ -11,3 +11,4 @@ plugins/*
 www/js/_config.js
 .DS_Store
 *.orig
+npm-debug.log

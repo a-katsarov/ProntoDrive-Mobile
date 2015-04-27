@@ -21,7 +21,14 @@ $royal: #0a689a;
 $balanced: #1ce102;
 
 $lightText: #d3d3d3;
+$lighterText: #f3f3f3;
 $inactive: #9e9e9e;
+
+$icon-color-word: #037ebe;
+$icon-color-excel: #1ba904;
+$icon-color-android: #1ba904;
+$icon-color-powerpoint: #a95404;
+$icon-color-pdf: #e60101;
 
 // The path for our ionicons font files, relative to the built CSS in www/css
 $ionicons-font-path: "../lib/ionic/fonts" !default;
@@ -43,6 +50,9 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 
 .bar-subheader .button.button-clear {
                                       color: $inactive;
+                                      font-size: 16px;
+                                      line-height: 16px;
+                                      margin-top: -2px;
                                       }
 .bar-subheader .button.button-clear.on {
                                          color: #000000;
@@ -55,7 +65,7 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 .bar .button.button-clear.icon-right::before {
                                               font-size: 24px;
                                               }
-.bar-subheader .button.button-clear.icon::before {
+.bar-subheader .button.button-clear.icon:before {
                                                    line-height: 24px;
                                                    }
 .bar-subheader .title {
@@ -129,10 +139,17 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 .gridview .item .size {
                         position: absolute;
                         top: 22px;
+                        left: 11px;
+                        font-size: 12px;
+                        }
+
+.gridview .item.folder .size {
+                        position: absolute;
+                        top: 22px;
                         line-height: 72px;
                         right: 11px;
                         left: 11px;
-                        font-size: 13px;
+                        font-size: 12px;
                         color: $light;
                         }
 .item .item-icons {
@@ -145,8 +162,11 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
                           position: static;
                           display: inline-block;
                           font-size: 16px;
-                          color: $lightText;
+                          color: $lighterText;
                           }
+.item .item-icons .icon.on {
+                             color: $inactive;
+                             }
 .item .item-icons .icon:before {
                                  width: 16px;
                                  }
@@ -159,6 +179,9 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
                                       bottom: 0;
                                       z-index: 10;
                                       }
+.item .item-content.activated {
+                                background: $light;
+                                }
 .modal-accounts {
                   background: rgba(3, 126, 190, 0.95);
                   }
@@ -177,11 +200,12 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
                                display: inline-block;
                                width: 100%;
                                position: relative;
-                               top: -5px;
+                               top: -10px;
                                }
 .modal-accounts .item .usage .usage-slider {
                                              height: 3px;
                                              background: $balanced;
+                                             width: 0%;
                                              }
 .modal-accounts .item h2 {
                            position: relative;
@@ -190,10 +214,11 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
                            /* line-height: 1em; */
                            }
 .modal-accounts .item .percent {
-                                 position: absolute;
-                                 right: 0;
-                                 color: $inactive;
+                                 float: right;
                                  }
+.modal-accounts .item .account-usage {
+                                       margin: -12px 0 0 0;
+                                       }
 .modal-accounts .item-icon-right {
                                    padding-right: 70px;
                                    }
@@ -249,7 +274,141 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
       -webkit-transform: none;
       transform: none;
       }
+.fa.filetype-icon {
+                    font-size: 24px;
+                    }
+.gridview .filetype-icon {
+                           height: 72px;
+                           line-height: 72px;
+                           }
+.gridview .fa.filetype-icon:before {
+                                     font-size: 42px;
+                                     }
+.icon-color-word {
+                   color: $icon-color-word;
+                   }
+.icon-color-android {
+                      color: $icon-color-android;
+                      }
+.icon-color-excel {
+                    color: $icon-color-excel;
+                    }
+.icon-color-powerpint {
+                        color: $icon-color-powerpoint;
+                        }
+.icon-color-pdf {
+                  color: $icon-color-pdf;
+                  }
+.platform-android .action-sheet {
+                                  padding: 5px 30px 0 30px;
+                                  }
+.platform-android .action-sheet-wrapper {
+                                          margin: 0;
+                                          }
+.platform-android .action-sheet-title {
+                                        display: none;
+                                        }
+.platform-android .action-sheet-group {
+                                        box-shadow: 0 0 5px #888888;
+                                        }
+.platform-android .action-sheet-group .button {
+                                                padding: 0 1em;
+                                                border-bottom: 1px solid $lightText;
+                                                color: $dark;
+                                                }
+.platform-android .action-sheet-backdrop.active {
+                                                  background: transparent;
+                                                  }
+.inline-audio {
+                position: absolute;
+                width: 32px;
+                height: 32px;
+                top: 50%;
+                left: 11px;
+                margin-top: -16px;
+                background: #ffffff;
+                -moz-border-radius: 50%;
+                -webkit-border-radius: 50%;
+                -khtml-border-radius: 50%;
+                border-radius: 50%;
+                }
+.gridview .inline-audio {
+                          width: 64px;
+                          height: 64px;
+                          top: 22px;
+                          left: 50%;
+                          margin-left: -32px;
+                          margin-top: 0;
+                          z-index: 12;
+                          }
+.inline-audio .button {
+                        display: inline;
+                        position: static;
+                        }
+.inline-audio .button:before {
+                               display: block;
+                               font-size: 24px;
+                               line-height: 32px;
+                               width: 32px;
+                               position: absolute;
+                               top: 0;
+                               left: 0;
+                               text-align: center;
+                               }
+.inline-audio .button.ion-ios-play {
+                                     text-indent: 4px;
+                                     }
+.gridview .inline-audio .button:before {
+                                         font-size: 46px;
+                                         line-height: 64px;
+                                         width: 64px;
+                                         }
+.inline-audio circle {
+                       transition: stroke-dashoffset 0.1s linear 0s;
+                       }
+/* Hide dthe scrollbars in the popup on some devices */
+.popup-body {
+              overflow: hidden;
+              }
+/* MOD the ACL form */
+.acl-list .item-button-right {
+                               padding-right: 0 !important;
+                               }
+.acl-list .item-button-right .item-content {
+                                             padding-right: 80px;
+                                             }
+.acl-list .item-button-right .button-small {
+                                             font-size: 11px !important;
+                                             line-height: 1em !important;
+                                             min-height: 0 !important;
+                                             padding: 0 0.25em;
+                                             }
 
+.audio-player-bar {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    height: 54px;
+                    background: $stable;
+                    z-index: 40;
+                    }
+.player-progress-bar {
+                       height: 2px;
+                       position: absolute;
+                       top: 0;
+                       left: 0;
+                       right: 0;
+                       z-index: 42;
+                       }
+.player-progress-bar .player-progress {
+                                        position: absolute;
+                                        top: 0;
+                                        left: 0;
+                                        height: 2px;
+                                        background: $positive;
+                                        width: 50%;
+                                        }
 @media (min-width: 800px) {
   .gridview .item {
                     width: 33.3333%;

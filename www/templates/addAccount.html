@@ -1,4 +1,4 @@
-<ion-modal-view ng-controller="AccountsCtrl" class="modal-add-account">
+<ion-modal-view class="modal-add-account">
   <ion-header-bar class="bar-positive">
     <h1 class="title">Pronto!Drive</h1>
     <div class="buttons" side="secondary">
@@ -13,21 +13,21 @@
       <div class="list">
 	<label class="item item-input item-stacked-label">
 	  <span class="input-label">Account</span>
-	  <input type="email" placeholder="user@domain.com" ng-model="accountName" name="accountName" required />
+	  <input type="email" placeholder="user@domain.com" ng-model="accountData.accountName" name="accountName" required />
 	</label>
 	<p ng-show="accountForm.accountName.$invalid && !accountForm.accountName.$pristine" class="item item-assertive item-clear">Enter a valid email.</p>
 	<label class="item item-input item-stacked-label">
 	  <span class="input-label">Password</span>
-	  <input type="password" placeholder="Password" ng-model="accountPassword" name="accountPassword" required />
+	  <input type="password" placeholder="Password" ng-model="accountData.accountPassword" name="accountPassword" required />
 	</label>
 	<ion-checkbox
-	   ng-model="useSSL"
+	   ng-model="accountData.useSSL"
 	   >
 	  Use SSL
 	</ion-checkbox>
 	<label class="item item-input item-stacked-label">
 	  <span class="input-label">Custom server (optional)</span>
-	  <input type="text" placeholder="drive.domain.com" ng-model="accountServer" name="accountServer">
+	  <input type="text" placeholder="drive.domain.com" ng-model="accountData.accountServer" name="accountServer">
 	</label>
       </div>
     </ion-content>

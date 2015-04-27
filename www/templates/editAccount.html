@@ -1,0 +1,32 @@
+<ion-modal-view ng-controller="AccountsCtrl" class="modal-edit-account">
+  <ion-header-bar class="bar-positive">
+    <h1 class="title">Pronto!Drive</h1>
+    <div class="buttons" side="secondary">
+      <button class="button button-clear button-icon ion-ios-close-empty" ng-click="closeEditAccountModal()"></button>
+    </div>
+  </ion-header-bar>
+  <ion-header-bar class="bar-subheader bar-royal">
+    <h1 class="title">Edit account</h1>
+  </ion-header-bar>
+  <ion-content>
+    <form name="accountForm" ng-submit="doEditAccount()" novalidate>
+      <div class="list">
+	<label class="item item-input item-stacked-label">
+	  <span class="input-label">Account</span>
+	  <input type="email" placeholder="user@domain.com" ng-model="accountData.accountName" name="accountName" readonly="redaonly" />
+	</label>
+	<label class="item item-input item-stacked-label">
+	  <span class="input-label">Password</span>
+	  <input type="password" placeholder="Password" ng-model="accountData.accountPassword" name="accountPassword" />
+	</label>
+	<ion-checkbox
+	   ng-model="accountData.useSSL"
+	   >
+	  Use SSL
+	</ion-checkbox>
+      </div>
+      <input type="submit" name="submit" value="Edit account" class="button button-block button-balanced" ng-disabled="accountForm.$invalid" />
+    </form>
+    <button class="button button-clear button-small button-stable" ng-click="deleteAccount(account)">Delete account</button>
+  </ion-content>
+</ion-modal-view>

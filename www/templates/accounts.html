@@ -9,23 +9,25 @@
     <h1 class="title">Accounts</h1>
   </ion-header-bar>
   <ion-content>
+    <!-- {{selectedAccount}} -->
     <div class="list">
       <div
 	 ng-repeat="account in accounts"
 	 class="item item-icon-left item-icon-right"
 	 >
-	<button class="button button-icon icon ion-person" ng-class="{on: account.active, off: !account.active}"></button>
-	<h2>
-	  {{account.name}}
-	  <span class="percent">
-	    {{account.usage}}%
-	  </span>
-	</h2>
-	<div class="usage">
-	  <div class="usage-slider" style="width: {{account.usage}}%">
+	<button class="button button-icon icon ion-person" ng-class="{on: selectedAccount==account.id, off: selectedAccount!=account.id}" ng-click="selectAccount(account.id)"></button>
+	<div class="item-content">
+	  <h2>{{account.account}}</h2>
+	  <div class="usage">
+	    <div class="usage-slider" style="width: {{accountsUsage[account.account].percent}}%">
+	    </div>
 	  </div>
+	  <p class="account-usage">
+	    {{sizeReadable(accountsUsage[account.account]._size)}}/{{sizeReadable(accountsUsage[account.account]._sizeLimit)}}
+	    <span class="percent">{{accountsUsage[account.account].percent}}%</span>
+	  </p>
 	</div>
-	<button class="button button-icon icon ion-ios-gear-outline"></button>
+	<button class="button button-icon icon ion-ios-gear-outline" ng-click="editAccount(account)"></button>
       </div>
       <div class="item" ng-show="accounts.length < 1">
 	<h2>No accounts!</h2>
