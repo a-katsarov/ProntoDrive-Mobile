@@ -34,14 +34,4 @@ angular.module('drive', ['ngCordova', 'ionic', 'drive.controllers', 'drive.filte
 		templateUrl: 'templates/image-viewer.html',
 		controller: 'ImageViewerCtrl'
 	    })
-	    .state('videoplayer', {
-		url: '/videoplayer/{filepath:.*}',
-		templateUrl: 'templates/video-player.html',
-		controller: 'VideoPlayerCtrl'
-	    })
-	    .state('audioplayer', {
-		url: '/audioplayer/{filepath:.*}',
-		templateUrl: 'templates/audio-player.html',
-		controller: 'AudioPlayerCtrl'
-	    })
     })

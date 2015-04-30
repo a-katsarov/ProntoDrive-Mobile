@@ -557,11 +557,9 @@ angular.module('drive.controllers', [])
 	    filePath = basePath.base + $scope.path + folderItem._fileName;
 	    var ext = filePath.split('.').pop().toLowerCase();
 	    if ((ext == "mp4" || ext == "ogg"  || ext == "ogv" || ext == "webm") && $scope.checkVideoFormat(ext)) {
-		$state.go('videoplayer', {
-		    filepath: filePath
-		});
+		$scope.playVideo(folderItem);
 	    } else if ((ext == "mp3" || ext == "wav" || ext == "oga" || ext == "ogg") && $scope.checkAudioFormat(ext)) {
-		// if (folderItem.controls) {folderItem.controls.playpause};
+		$scope.playAudio(folderItem);
 	    } else if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif" || ext == "tiff" || ext == "tif" || ext == "bmp") {
 		var storageBase = cordova.file.externalRootDirectory.replace("file://", "");
 		$cordovaFile.listDir(basePath.base + $scope.path).then(function(result) {
@@ -747,7 +745,17 @@ angular.module('drive.controllers', [])
 	    });
 	    $scope.iface.audioControls.playFile(basePath.base + $scope.path, file, audios);
 	}
-
+	$scope.playVideo = function (file) {
+	    var videos = $scope.folderItems.filter(function (item) {
+		filePath = basePath.base + $scope.path + item._fileName;
+		var ext = filePath.split('.').pop().toLowerCase();
+		if (item.local && (ext == "mp4" || ext == "ogv" || ext == "webm") && $scope.checkVideoFormat(ext)) {
+		    return true;
+		}
+		return false;
+	    });
+	    $scope.iface.videoControls.playFile(basePath.base + $scope.path, file, videos);
+	};
 	$ionicPlatform.ready(function() {
 	    StatusBar.show();
 	    $scope.listFolder();
@@ -947,48 +955,6 @@ angular.module('drive.controllers', [])
 		},
 		buttonClicked: function(index) {
 		    window.plugins.fileOpener.open("file://" + $rootScope.images[$ionicSlideBoxDelegate.currentIndex()]);
-		    hideSheet();
-		}
-	    });
-	};
-    })
-// Viedeo player
-    .controller('VideoPlayerCtrl', function($scope, $stateParams, $ionicActionSheet) {
-	// $scope.$root.tabsHidden = "tabs-item-hide";
-	$scope.title = $stateParams.filepath.substring($stateParams.filepath.lastIndexOf('/')+1);
-	$scope.video = $stateParams.filepath;
-	$scope.openWith = function () {
-	    var hideSheet = $ionicActionSheet.show({
-		buttons: [
-		    { text: 'Open with' }
-		],
-		cancelText: 'Cancel',
-		cancel: function() {
-		    // add cancel code..
-		},
-		buttonClicked: function(index) {
-		    window.plugins.fileOpener.open($stateParams.filepath);
-		    hideSheet();
-		}
-	    });
-	};
-    })
-// Audio player
-    .controller('AudioPlayerCtrl', function($scope, $stateParams, $ionicActionSheet) {
-	// $scope.$root.tabsHidden = "tabs-item-hide";
-	$scope.title = $stateParams.filepath.substring($stateParams.filepath.lastIndexOf('/')+1);
-	$scope.audio = $stateParams.filepath;
-	$scope.openWith = function () {
-	    var hideSheet = $ionicActionSheet.show({
-		buttons: [
-		    { text: 'Open with' }
-		],
-		cancelText: 'Cancel',
-		cancel: function() {
-		    // add cancel code..
-		},
-		buttonClicked: function(index) {
-		    window.plugins.fileOpener.open($stateParams.filepath);
 		    hideSheet();
 		}
 	    });

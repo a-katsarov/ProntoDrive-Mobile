@@ -405,8 +405,28 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
                                         left: 0;
                                         height: 2px;
                                         background: $positive;
-                                        width: 50%;
+                                        width: 0%;
                                         }
+.video-wrap {
+              position: absolute;
+              bottom: 64px;
+              right: 10px;
+              width: 40%;
+              padding-top: 22.5%;
+              box-shadow: 0 0 10px #000000;
+              }
+.video-wrap video {
+                    display: block;
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    z-index: 100;
+                    }
+
 @media (min-width: 800px) {
   .gridview .item {
                     width: 33.3333%;
