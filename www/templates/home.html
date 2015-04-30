@@ -34,7 +34,7 @@
 	 class="item item-icon-left item-icon-right{{folderItem._size?'':' folder'}}"
 	 >
       	<i class="icon {{getIcon(folderItem)}} filetype-icon"></i>
-	<inline-audio ng-if="folderItem.audioplay && folderItem.local" progress="folderItem.progress" paused="folderItem.paused" size="{{iface.grid?'64':'32'}}" ng-click="playAudio(folderItem, folderItems)"></inline-audio>
+	<inline-audio ng-if="folderItem.audioplay && folderItem.local" progress="folderItem.progress" paused="folderItem.paused" size="{{iface.grid?'64':'32'}}" ng-click="playAudio(folderItem)"></inline-audio>
 	<!-- Link for folders -->
 	<a ng-hide="folderItem._size" href="#/home/{{path}}{{folderItem._fileName}}/" class="item-content">
 	  <h2>{{folderItem._fileName}}</h2>
@@ -59,15 +59,18 @@
       <button class="button button-clear icon icon-top ion-ios-folder" ng-class="{'button-positive': searches.folders}" ng-click="toggleFilter('folders')">
     	Folders
       </button>
-      <a class="button button-clear icon icon-top ion-document" ng-class="{'button-positive': searches.docs}" ng-click="toggleFilter('docs')">
+      <button class="button button-clear icon icon-top ion-document" ng-class="{'button-positive': searches.docs}" ng-click="toggleFilter('docs')">
     	Documents
-      </a>
-      <a class="button button-clear icon icon-top ion-ios-musical-notes" ng-class="{'button-positive': searches.sounds}" ng-click="toggleFilter('sounds')">
+      </button>
+      <button class="button button-clear icon icon-top ion-ios-musical-notes" ng-class="{'button-positive': searches.sounds}" ng-click="toggleFilter('sounds')">
     	Sounds
-      </a>
-      <a class="button button-clear icon icon-top ion-image" ng-class="{'button-positive': searches.images}" ng-click="toggleFilter('images')">
+      </button>
+      <button class="button button-clear icon icon-top ion-image" ng-class="{'button-positive': searches.images}" ng-click="toggleFilter('images')">
     	Images
-      </a>
+      </button>
+      <button class="button button-clear icon icon-top ion-ios-play" ng-click="iface.audioControls.togglePanel()" ng-hide="iface.audioControls.paused()">
+    	Playing
+      </button>
     </div>
   </ion-footer-bar>
 </ion-view>

@@ -7888,7 +7888,7 @@ a.button {
   left: 50%;
   margin-left: -32px;
   margin-top: 0;
-  z-index: 12; }
+  z-index: 10; }
 
 .inline-audio .button {
   display: inline;
@@ -7911,9 +7911,6 @@ a.button {
   font-size: 46px;
   line-height: 64px;
   width: 64px; }
-
-.inline-audio circle {
-  transition: stroke-dashoffset 0.1s linear 0s; }
 
 /* Hide dthe scrollbars in the popup on some devices */
 .popup-body {
@@ -7938,16 +7935,17 @@ a.button {
   right: 0;
   bottom: 0;
   height: 54px;
-  background: #ebebeb;
-  z-index: 40; }
+  background: #fff;
+  z-index: 10; }
 
 .player-progress-bar {
-  height: 2px;
+  height: 1px;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 42; }
+  z-index: 10;
+  background: #ebebeb; }
 
 .player-progress-bar .player-progress {
   position: absolute;

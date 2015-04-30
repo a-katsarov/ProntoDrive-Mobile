@@ -1,4 +1,4 @@
-angular.module('drive.directives', [])
+angular.module('drive.directives', ['drive.services'])
     .directive('wfTap', function() {
 	return function(scope, element, attrs) {
 	    element.bind('touchstart', function() {
@@ -132,21 +132,23 @@ angular.module('drive.directives', [])
 	    },
             controller: function($scope, $element, $window, $timeout) {
                 $scope.audio = new Audio();
+		$scope.audio.paused = true;
 		$scope.fileObject = {};
 		$scope.src = "";
 		$scope.files;
-                $scope.playpause = function(base, fileObject, files) {
-		    if (fileObject && base + fileObject._fileName != $scope.src) {
+                $scope.playpause = function(base, fileObject, files, nopause) {
+		    if (fileObject && (base + fileObject._fileName != $scope.src || nopause)) {
 			if ($scope.audio.src) {
 			    $scope.audio.pause();
 			    $scope.fileObject.paused = true;
 			    $scope.fileObject.progress = 1;
 			    $scope.progress = 0;
-			    $scope.files = files;
 			}
 			$scope.audio.src = base + fileObject._fileName;
 			$scope.src = base + fileObject._fileName;
 			$scope.fileObject = fileObject;
+			$scope.files = files;
+			$scope.base = base;
 		    }
 		    if ($scope.audio.src) {
 			if($scope.audio.paused) {
@@ -159,6 +161,12 @@ angular.module('drive.directives', [])
 			$scope.fileObject.paused = $scope.audio.paused;
 		    }
 		};
+
+		$scope.panelVisible = true;
+		$scope.togglePanel = function () {
+		    $scope.panelVisible = ! $scope.panelVisible;
+		};
+
                 $scope.audio.addEventListener('timeupdate', function(){
 		    $rootScope.$broadcast('audio.time', this);
 		    if ($scope.fileObject) {
@@ -173,15 +181,39 @@ angular.module('drive.directives', [])
 				$scope.progress = 0;
 				$scope.fileObject.progress = 1;
 			    }
-			    if ($scope.audio.stop)
-				$scope.audio.stop();
-			}, 2000);
+			    $scope.forward(true);
+			}, 1200);
 		    }
 		    $scope.$apply();
 		});
+		$scope.isPaused = function () {
+		    return $scope.audio.paused;
+		};
+		$scope.forward = function (stopOnLast) {
+		    var currentIndex = $scope.files.indexOf($scope.fileObject);
+		    if (currentIndex < ($scope.files.length - 1) && currentIndex >= 0) {
+			$scope.playpause($scope.base, $scope.files[currentIndex + 1], $scope.files, true);
+		    } else if (!stopOnLast) {
+			$scope.playpause($scope.base, $scope.files[0], $scope.files, true);
+		    }
+		};
+		$scope.back = function () {
+		    var currentIndex = $scope.files.indexOf($scope.fileObject);
+		    if ($scope.audio.currentTime > 1) {
+			$scope.playpause($scope.base, $scope.files[currentIndex], $scope.files, true);
+		    } else {
+			if (currentIndex > 0  && currentIndex < $scope.files.length) {
+			    $scope.playpause($scope.base, $scope.files[currentIndex - 1], $scope.files, true);
+			} else {
+			    $scope.playpause($scope.base, $scope.files[$scope.files.length - 1], $scope.files, true);
+			}
+		    }
+		};
+
 		$scope.controls = {
 		    playFile: $scope.playpause,
-		    paused: $scope.audio.paused
+		    paused: $scope.isPaused,
+		    togglePanel: $scope.togglePanel
 		};
                 // $scope.audio = angular.element(document.querySelector( '#audioPlayer' ))[0];
                 // //$scope.audio = new ;

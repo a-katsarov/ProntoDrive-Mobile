@@ -736,9 +736,16 @@ angular.module('drive.controllers', [])
 	}
 	// END Upload files
 
-	$scope.playAudio = function (file, files) {
-	    // folderItem.controls.playpause
-	    $scope.iface.audioControls.playFile(basePath.base + $scope.path, file, files);
+	$scope.playAudio = function (file) {
+	    var audios = $scope.folderItems.filter(function (item) {
+		filePath = basePath.base + $scope.path + item._fileName;
+		var ext = filePath.split('.').pop().toLowerCase();
+		if (item.local && (ext == "mp3" || ext == "wav" || ext == "oga" || ext == "ogg") && $scope.checkAudioFormat(ext)) {
+		    return true;
+		}
+		return false;
+	    });
+	    $scope.iface.audioControls.playFile(basePath.base + $scope.path, file, audios);
 	}
 
 	$ionicPlatform.ready(function() {
