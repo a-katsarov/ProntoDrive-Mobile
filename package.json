@@ -21,7 +21,8 @@
     "org.apache.cordova.file-transfer",
     "org.apache.cordova.network-information",
     "org.apache.cordova.statusbar",
-    "com.verso.cordova.clipboard"
+    "com.verso.cordova.clipboard",
+    "net.yoik.cordova.plugins.screenorientation"
   ],
   "cordovaPlatforms": [
     "android"

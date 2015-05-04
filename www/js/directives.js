@@ -42,15 +42,22 @@ angular.module('drive.directives', ['drive.services'])
 		    }
 		    scope.$apply();
 		});
+		// var so = cordova.plugins.screenorientation;
 		angular.element(scope.video).on('click', function(e) {
-		    if (document.fullscreenEnabled || document.mozFullScreenEnabled || document.webkitFullscreenEnabled) {
-			if (scope.video.requestFullscreen) {
-		    	    scope.video.requestFullscreen();
-			} else if (scope.video.webkitRequestFullscreen) {
-			    scope.video.webkitRequestFullscreen();
-			}
-		    } else {
-		    	document.webkitExitFullscreen();
+		    if (scope.video.requestFullscreen) {
+		    	scope.video.requestFullscreen();
+		    } else if (scope.video.webkitRequestFullscreen) {
+			scope.video.webkitRequestFullscreen();
+		    }
+		    screen.lockOrientation('landscape');
+		    StatusBar.hide();
+		    // so.setOrientation(so.Orientation.LANDSCAPE);
+		});
+
+		angular.element(document).on('webkitfullscreenchange', function(e) {
+		    if(!e.currentTarget.webkitIsFullScreen) {
+			screen.unlockOrientation();
+			StatusBar.show();
 		    }
 		});
 
