@@ -7671,13 +7671,17 @@ a.button {
 .gridview .item-icon-left .more-button {
   height: 32px;
   width: 32px;
-  padding: 0; }
+  padding: 0;
+  text-shadow: 0 0 4px #ffffff; }
 
 .more-button {
   color: #d3d3d3; }
 
 .listview .item h2 {
   margin: 10px 0; }
+
+.gridview .item {
+  text-shadow: 0 0 4px #ffffff; }
 
 .listview .item .size {
   position: absolute;
@@ -7699,7 +7703,8 @@ a.button {
   right: 11px;
   left: 11px;
   font-size: 12px;
-  color: #fff; }
+  color: #fff;
+  text-shadow: none; }
 
 .item .item-icons {
   position: absolute;
@@ -7711,10 +7716,12 @@ a.button {
   position: static;
   display: inline-block;
   font-size: 16px;
-  color: #f3f3f3; }
+  color: rgba(0, 0, 0, 0.05);
+  text-shadow: none; }
 
 .item .item-icons .icon.on {
-  color: #9e9e9e; }
+  color: rgba(0, 0, 0, 0.4);
+  text-shadow: 0 0 4px #ffffff; }
 
 .item .item-icons .icon:before {
   width: 16px; }
@@ -7868,7 +7875,7 @@ a.button {
 .platform-android .action-sheet-backdrop.active {
   background: transparent; }
 
-.inline-audio {
+.item .spinner, .inline-audio {
   position: absolute;
   width: 32px;
   height: 32px;
@@ -7881,14 +7888,18 @@ a.button {
   -khtml-border-radius: 50%;
   border-radius: 50%; }
 
-.gridview .inline-audio {
+.gridview .item .spinner, .gridview .inline-audio {
   width: 64px;
   height: 64px;
   top: 22px;
   left: 50%;
   margin-left: -32px;
   margin-top: 0;
-  z-index: 10; }
+  z-index: 11; }
+
+.gridview .item .spinner svg {
+  width: 64px;
+  height: 64px; }
 
 .inline-audio .button {
   display: inline;
@@ -7961,18 +7972,57 @@ a.button {
   right: 10px;
   width: 40%;
   padding-top: 22.5%;
-  box-shadow: 0 0 10px #000000; }
+  box-shadow: 0 0 10px #000000;
+  background: red; }
 
 .video-wrap video {
   display: block;
   position: absolute;
-  width: 100%;
-  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
   top: 0;
-  left: 0;
   right: 0;
   bottom: 0;
   z-index: 100; }
+
+.listview .img-wrap {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  top: 50%;
+  left: 11px;
+  margin-top: -16px;
+  text-align: center; }
+
+.listview .img-wrap img {
+  max-width: 99%;
+  max-height: 100%;
+  display: inline-block;
+  vertical-align: middle; }
+
+.listview .img-wrap .dummy {
+  width: 0px;
+  height: 100%;
+  display: inline-block;
+  vertical-align: middle; }
+
+.loading .filetype-icon, .img .filetype-icon {
+  visibility: hidden; }
+
+.gridview img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -1000;
+  overflow: hidden; }
 
 @media (min-width: 800px) {
   .gridview .item {

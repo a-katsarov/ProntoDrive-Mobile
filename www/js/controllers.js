@@ -1,4 +1,4 @@
-angular.module('drive.controllers', [])
+angular.module('drive.controllers', ['drive.config'])
     .controller('AppCtrl', function($scope, $ionicModal, $ionicPlatform, Accounts, $cordovaToast, XIMSS, $prefs) {
 	$scope.iface = {};
 	$scope.iface.search = false;
@@ -90,7 +90,7 @@ angular.module('drive.controllers', [])
 	    return Math.round(10 * bytes / Math.pow(k, i))/10  + sizes[i];
 	};
     })
-    .controller('HomeCtrl', function($scope, $stateParams, $ionicActionSheet, $ionicPlatform, $ionicLoading, basePath, XIMSS, $timeout, $filter, $cordovaFile, $prefs, $ionicScrollDelegate, $ionicPopup, $cordovaFileTransfer, $cordovaToast, Accounts, $cordovaClipboard, $ionicModal, Opener, Downloader, $rootScope, $state) {
+    .controller('HomeCtrl', function($scope, $stateParams, $ionicActionSheet, $ionicPlatform, $ionicLoading, basePath, XIMSS, $timeout, $filter, $cordovaFile, $prefs, $ionicScrollDelegate, $ionicPopup, $cordovaFileTransfer, $cordovaToast, Accounts, $cordovaClipboard, $ionicModal, Opener, Downloader, $rootScope, $state, ImageResizer, IMAGES_CONFIG) {
 	$scope.searches = {};
 	$scope.path = $stateParams.path;
 	var folders = $scope.path.split("/");
@@ -104,7 +104,11 @@ angular.module('drive.controllers', [])
 		return;
 	    }
 	    $scope.listFolderDebounce = now;
-	    basePath.updateBase();
+	    basePath.updateBase().then(
+		function (base) {
+		    $scope.base = base;
+		}
+	    );
 	    $ionicLoading.show({
 	    	templateUrl: 'templates/loading.html'
 	    });
@@ -186,9 +190,12 @@ angular.module('drive.controllers', [])
 	    	$cordovaFile.checkFile(fullpath.replace("file://", "")).then(
 	    	    function (res) {
 	    		value.local = true;
-			var ext = value._fileName.substring(value._fileName.lastIndexOf('.')+1);
+			var ext = value._fileName.substring(value._fileName.lastIndexOf('.')+1).toLowerCase();
 			if ($scope.checkAudioFormat(ext)) {
 			    value.audioplay = basePath.base + $scope.path + value._fileName;
+			}
+			if (ext == "jpg" || ext == "jpeg" || ext == "png") {
+			    value.img = true
 			}
 	    	    }
 	    	);
@@ -207,28 +214,28 @@ angular.module('drive.controllers', [])
 	    if (item) {
 		var name = item._fileName || item.name;
 		if (item._type == "directory" || item.isDirectory) return "ion-folder positive";
-		if (name.match(/\.(png|jpg|jpeg|gif|bmp|tif|tiff|svg|psd)$/i))
+		if (name.match(/\.(png|jpg|jpeg|gif|bmp|tif|tiff|svg|psd)$/i)) {
 		    return "fa fa-file-image-o";
-		if (name.match(/\.(mp3|ogg|wav|flac|acc|oga|m4a)$/i)) {
+		} else if (name.match(/\.(mp3|ogg|wav|flac|acc|oga|m4a)$/i)) {
 		    return "fa fa-file-audio-o";
 		}
-		if (name.match(/\.(avi|mpeg|mp4|mov|ogv|webm|flv|mpg)$/i))
+		else if (name.match(/\.(avi|mpeg|mp4|mov|ogv|webm|flv|mpg)$/i))
 		    return "fa fa-file-video-o";
-		if (name.match(/\.(zip|tar|tgz|bz|gz|7z|arj|rar)$/i))
+		else if (name.match(/\.(zip|tar|tgz|bz|gz|7z|arj|rar)$/i))
 		    return "fa fa-file-archive-o";
-		if (name.match(/\.(xml|html|htm)$/i))
+		else if (name.match(/\.(xml|html|htm)$/i))
 		    return "fa fa-file-code-o";
-		if (name.match(/\.(pdf)$/i))
+		else if (name.match(/\.(pdf)$/i))
 		    return "fa fa-file-pdf-o icon-color-pdf";
-		if (name.match(/\.(apk)$/i))
+		else if (name.match(/\.(apk)$/i))
 		    return "fa fa-android  icon-color-android";
-		if (name.match(/\.(txt)$/i))
+		else if (name.match(/\.(txt)$/i))
 		    return "fa fa-file-text-o";
-		if (name.match(/\.(doc|docx|odt|ott|fodt|uot|rdf|dot)$/i))
+		else if (name.match(/\.(doc|docx|odt|ott|fodt|uot|rdf|dot)$/i))
 		    return "fa fa-file-word-o icon-color-word";
-		if (name.match(/\.(xls|ods|ots|fods|uos|xlsx|xlt|csv)$/i))
+		else if (name.match(/\.(xls|ods|ots|fods|uos|xlsx|xlt|csv)$/i))
 		    return "fa fa-file-excel-o icon-color-excel";
-		if (name.match(/\.(odp|otp|fodp|ppt|pptx|ppsx|potm|pps|pot)$/i))
+		else if (name.match(/\.(odp|otp|fodp|ppt|pptx|ppsx|potm|pps|pot)$/i))
 		    return "fa fa-file-powerpoint-o icon-color-powerpint";
 	    }
 	    return "fa fa-file-o";
@@ -294,6 +301,9 @@ angular.module('drive.controllers', [])
 			    Downloader.download(file, fullPath, $scope).then(
 				function (result) {
 				    $cordovaToast.show(result, 'long', 'bottom');
+				    $timeout(function () {
+					$scope.checkImageAndScale(basePath.base + $scope.path + file._fileName, file);
+				    });
 				},
 				function (error) {
 				    $cordovaToast.show(error, 'long', 'bottom');
@@ -308,6 +318,7 @@ angular.module('drive.controllers', [])
 			$cordovaFile.removeFile(fullPath).then(function(result) {
 			    $cordovaToast.show("File deleted.", 'long', 'bottom');
 			    file.local = false;
+			    file.img = false;
 			    hideSheet();
 			}, function(err) {
 			    $cordovaToast.show(err, 'long', 'bottom');
@@ -500,12 +511,14 @@ angular.module('drive.controllers', [])
 
 	$scope.viewFile = function (folderItem) {
 	    if (folderItem.local) {
-		// alert();
 		$scope.openFile(folderItem);
 	    } else {
 		Downloader.download(folderItem, basePath.base + $scope.path + folderItem._fileName, $scope).then(
 		    function (result) {
 			$cordovaToast.show(result, 'long', 'bottom');
+			$timeout(function () {
+			    $scope.checkImageAndScale(basePath.base + $scope.path + folderItem._fileName, folderItem);
+			});
 			$scope.openFile(folderItem);
 		    },
 		    function (error) {
@@ -514,6 +527,21 @@ angular.module('drive.controllers', [])
 		);
 	    }
 
+	}
+
+	$scope.checkImageAndScale = function (file, item) {
+	    var ext = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
+	    if (ext == "jpg" || ext == "jpeg" || ext == "png") {
+		item.loading = true;
+		var folder = file.substring(0,file.lastIndexOf('/') + 1);
+		var filename = file.substring(file.lastIndexOf('/') + 1);
+		ImageResizer.resize(file, folder + ".thumb_" + filename, IMAGES_CONFIG.thMaxWidth, IMAGES_CONFIG.thMaxHeight).then( function () {
+			ImageResizer.resize(file, folder + ".preview_" + filename, IMAGES_CONFIG.previewMaxWidth, IMAGES_CONFIG.previewMaxHeight).then( function () {
+			    item.loading = false;
+			    item.img = true;
+			});
+		});
+	    }
 	}
 
 	$scope.checkAudioFormat = function (format) {
@@ -561,23 +589,23 @@ angular.module('drive.controllers', [])
 	    } else if ((ext == "mp3" || ext == "wav" || ext == "oga" || ext == "ogg") && $scope.checkAudioFormat(ext)) {
 		$scope.playAudio(folderItem);
 	    } else if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif" || ext == "tiff" || ext == "tif" || ext == "bmp") {
-		var storageBase = cordova.file.externalRootDirectory.replace("file://", "");
-		$cordovaFile.listDir(basePath.base + $scope.path).then(function(result) {
-		    images = $filter('filter')(result, function (item, index) {
-		    	if (item.isFile && item.name.match(/\.(jpg|jpeg|png|gif|tif|tiff|bmp)$/i) )
-		    	    return true;
-		    	return false;
-		    }).map(function (image) {
-			return  (storageBase + image.fullPath).replace(/\/+/g, "/");
-		    }).sort();
-		    var index = images.indexOf(filePath.replace("file://", "").replace(/\/+/g, "/"));
-		    $rootScope.images = images;
-		    $state.go('imageviewer', {
-			index: index
-		    });
-		}, function(err) {
-		    // An error occurred. Show a message to the user
-		});
+		// var storageBase = cordova.file.externalRootDirectory.replace("file://", "");
+		// $cordovaFile.listDir(basePath.base + $scope.path).then(function(result) {
+		//     images = $filter('filter')(result, function (item, index) {
+		//     	if (item.isFile && item.name.match(/\.(jpg|jpeg|png|gif|tif|tiff|bmp)$/i) )
+		//     	    return true;
+		//     	return false;
+		//     }).map(function (image) {
+		// 	return  (storageBase + image.fullPath).replace(/\/+/g, "/");
+		//     }).sort();
+		//     var index = images.indexOf(filePath.replace("file://", "").replace(/\/+/g, "/"));
+		//     $rootScope.images = images;
+		//     $state.go('imageviewer', {
+		// 	index: index
+		//     });
+		// }, function(err) {
+		//     // An error occurred. Show a message to the user
+		// });
 	    } else {
 		window.plugins.fileOpener.open(filePath);
 	    }
@@ -639,7 +667,11 @@ angular.module('drive.controllers', [])
 	    $scope.browsePath = path;
 	    $cordovaFile.listDir(path).then(
 		function (ok) {
-		    $scope.uploadItems = ok.sort(compareFilesAndFoldersUpload);
+		    $scope.uploadItems = ok.sort(compareFilesAndFoldersUpload).filter(function (item) {
+			if (item.name.match(/^\./))
+			    return false;
+			return true;
+		    });
 		    $ionicScrollDelegate.$getByHandle('uploadModalContent').scrollTop(true);
 		    $ionicLoading.hide();
 		},
@@ -671,7 +703,12 @@ angular.module('drive.controllers', [])
 	    	templateUrl: "templates/uploading.html",
 	    	title: 'Uploading',
 	    	scope: $scope,
-	    	buttons: []
+	    	buttons: [
+		    { text: 'Cancel' }
+		]
+	    });
+	    uploadPopup.then(function () {
+		$scope.cancelUpload();
 	    });
 	    $scope.serialUploadFile(files, uploadPopup);
 	};
@@ -682,17 +719,17 @@ angular.module('drive.controllers', [])
 	    if (files.length) {
 		var file = files.shift();
 		var fileName = file.replace(/^.*[\\\/]/, '');
-		$scope.uploadFilename = fileName;
+		$scope.uploadFilename = decodeURIComponent(fileName);
 		XIMSS.getSession().then(
 		    function (sessionData) {
 		    	var account = sessionData.account;
 		    	var SessionID = sessionData.sessionID;
 			var uploadID = makeId();
-			$cordovaFileTransfer.upload((account.ssl?"https://":"http://") + account.host + (account.ssl?":9100":":8100") + "/Session/" + SessionID + "/UPLOAD/" + uploadID , file.replace("file://",""), {
+			var uploadPromice = $cordovaFileTransfer.upload((account.ssl?"https://":"http://") + account.host + (account.ssl?":9100":":8100") + "/Session/" + SessionID + "/UPLOAD/" + uploadID , file, {
 			    "fileKey": "fileData",
 			    "fileName": fileName
-			}, true)
-			    .then(function(result) {
+			}, true);
+			uploadPromice.then(function(result) {
 				// Success!
 				var filePath = $scope.path + fileName;
 				if (! filePath.match(/^~/))
@@ -700,7 +737,6 @@ angular.module('drive.controllers', [])
 				XIMSS.fileStore(filePath, uploadID).then(
 				    function (ok) {
 					$scope.uploadCurrent = $scope.uploadCount - files.length;
-	    	    			// $scope.uploadProgress = (Math.round(100 * ($scope.uploadCount - files.length)/$scope.uploadCount));
  					$scope.serialUploadFile(files,uploadPopup);
 				    },
 				    function (err) {
@@ -715,6 +751,7 @@ angular.module('drive.controllers', [])
 	    	    		$scope.uploadProgressCurrent = (Math.round(100 * progress.loaded/progress.total));
 	    	    		$scope.uploadProgress = Math.round( ($scope.uploadCount - files.length - 1)*progressChunks + progressChunks * progress.loaded/progress.total );
 			    });
+			$scope.cancelUpload = uploadPromice.abort;
 		    },
 		    function (error) {
 			$cordovaToast.show(error, 'long', 'bottom');
@@ -735,6 +772,10 @@ angular.module('drive.controllers', [])
 	// END Upload files
 
 	$scope.playAudio = function (file) {
+	    // First stop playing videos
+	    if ($scope.iface.videoControls && !$scope.iface.videoControls.paused()) {
+		$scope.iface.videoControls.playFile();
+	    }
 	    var audios = $scope.folderItems.filter(function (item) {
 		filePath = basePath.base + $scope.path + item._fileName;
 		var ext = filePath.split('.').pop().toLowerCase();
@@ -746,6 +787,10 @@ angular.module('drive.controllers', [])
 	    $scope.iface.audioControls.playFile(basePath.base + $scope.path, file, audios);
 	}
 	$scope.playVideo = function (file) {
+	    // First stop playing audios
+	    if ($scope.iface.audioControls && !$scope.iface.audioControls.paused()) {
+		$scope.iface.audioControls.playFile();
+	    }
 	    var videos = $scope.folderItems.filter(function (item) {
 		filePath = basePath.base + $scope.path + item._fileName;
 		var ext = filePath.split('.').pop().toLowerCase();
@@ -982,9 +1027,9 @@ function compareFilesAndFoldersUpload(a,b) {
     if (a.isDirectory && b.isFile)
 	return -1;
     // if type equals
-    if (a.name > b.name)
+    if (a.name.toLowerCase() > b.name.toLowerCase())
 	return 1;
-    if (a.name < b.name)
+    if (a.name.toLowerCase() < b.name.toLowerCase())
 	return -1;
     return 0;
 }

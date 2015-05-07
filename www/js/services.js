@@ -10,6 +10,7 @@ angular.module('drive.services', ['drive.config'])
 		    // TODO: check OS
 		    self.baseRoot = cordova.file.externalRootDirectory.replace("file://", "");
 		    self.base = self.baseRoot + "/ProntoDrive/" + account.account + "/";
+		    q.resolve(self.base);
 		},
 		function (err) {
 		    q.reject(err);
@@ -799,13 +800,19 @@ angular.module('drive.services', ['drive.config'])
     .factory('Downloader', function ($q, $cordovaFileTransfer, $ionicPopup, XIMSS) {
 	var self = this;
 	self.download = function (file, to, scope) {
+	    scope.cancelDownload = function () {alert(999)};
 	    var q = $q.defer();
 	    var downloadPopup = $ionicPopup.show({
 		templateUrl: "templates/downloading.html",
 		title: 'Downloading',
 		subTitle: file._fileName,
 		scope: scope,
-		buttons: []
+	    	buttons: [
+		    { text: 'Cancel' }
+		]
+	    });
+	    downloadPopup.then(function () {
+		// scope.cancelDownload();
 	    });
 	    scope.downloadProgress = 0;
 	    XIMSS.getSession().then(
@@ -813,25 +820,25 @@ angular.module('drive.services', ['drive.config'])
 		    var account = sessionData.account;
 		    var SessionID = sessionData.sessionID;
 		    scope.downloadProgressTotal = scope.sizeReadable(file._size);
-		    $cordovaFileTransfer.download((account.ssl?"https://":"http://") + account.host + (account.ssl?":9100":":8100") + "/Session/" + SessionID + "/DOWNLOAD/" + file._directory + file._fileName, to, {}, true)
-		    // $cordovaFileTransfer.download(url, to, {}, true)
-	    		.then(function(result) {
-			    downloadPopup.close();
-			    file.local = true;
-			    var ext = file._fileName.substring(file._fileName.lastIndexOf('.')+1);
-			    if (scope.checkAudioFormat(ext)) {
-				file.audioplay = to;
-			    }
+		    var downloadPromice = $cordovaFileTransfer.download((account.ssl?"https://":"http://") + account.host + (account.ssl?":9100":":8100") + "/Session/" + SessionID + "/DOWNLOAD/" + file._directory + file._fileName, to, {}, true);
+	    	    downloadPromice.then(function(result) {
+			downloadPopup.close();
+			file.local = true;
+			var ext = file._fileName.substring(file._fileName.lastIndexOf('.')+1).toLowerCase();
+			if (scope.checkAudioFormat(ext)) {
+			    file.audioplay = to;
+			}
 
-			    q.resolve(file._fileName + " downloaded.");
-	    		}, function(err) {
-			    downloadPopup.close();
-			    q.reject(err);
-	    		}, function (progress) {
-			    q.notify(progress);
-			    scope.downloadProgressLoaded = scope.sizeReadable(progress.loaded);
-	    		    scope.downloadProgress = (Math.round(100 * progress.loaded/progress.total));
-	    		});
+			q.resolve(file._fileName + " downloaded.");
+	    	    }, function(err) {
+			downloadPopup.close();
+			q.reject(err);
+	    	    }, function (progress) {
+			q.notify(progress);
+			scope.downloadProgressLoaded = scope.sizeReadable(progress.loaded);
+	    		scope.downloadProgress = (Math.round(100 * progress.loaded/progress.total));
+	    	    });
+		    // scope.cancelDownload = downloadPromice.abort;
 		},
 		function (error) {
 		    q.reject(error);
@@ -841,3 +848,63 @@ angular.module('drive.services', ['drive.config'])
 	}
 	return self;
     })
+    .factory('ImageResizer', function ($q, $cordovaFile) {
+	var self = this;
+	self.resize = function (file, dest, MAX_WIDTH, MAX_HEIGHT) {
+	    var q = $q.defer();
+	    $cordovaFile.readAsDataURL(file).then(
+		function (data) {
+		    var image = new Image();
+		    image.onload = function(){
+			var canvas = document.createElement("canvas");
+
+			// Calculate image size
+			if (image.width > image.height) {
+			    if (image.width > MAX_WIDTH) {
+				image.height *= MAX_WIDTH / image.width;
+				image.width = MAX_WIDTH;
+			    }
+			} else {
+			    if (image.height > MAX_HEIGHT) {
+				image.width *= MAX_HEIGHT / image.height;
+				image.height = MAX_HEIGHT;
+			    }
+			}
+
+			var ctx = canvas.getContext("2d");
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			canvas.width = image.width;
+			canvas.height = image.height;
+			ctx.drawImage(image, 0, 0, image.width, image.height);
+			var ext = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
+			var buf;
+			if (ext == "png") {
+			    buf =  _base64ToArrayBuffer(canvas.toDataURL("image/png"));
+			} else {
+			    buf =  _base64ToArrayBuffer(canvas.toDataURL("image/jpeg", 0.9));
+			}
+			$cordovaFile.writeFile(dest, buf).then(
+			    function () {
+				q.resolve(1);
+			    });
+		    };
+		    image.src = data;
+		}
+	    );
+	    return q.promise;
+	}
+	return self;
+    })
+
+function _base64ToArrayBuffer(base64) {
+    base64 = base64.replace(/^.*?\;base64\,/, "");
+    var binary_string =  window.atob(base64),
+        len = binary_string.length,
+        bytes = new Uint8Array( len ),
+        i;
+
+    for (i = 0; i < len; i++)        {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
