@@ -812,7 +812,7 @@ angular.module('drive.services', ['drive.config'])
 		]
 	    });
 	    downloadPopup.then(function () {
-		// scope.cancelDownload();
+		scope.cancelDownload();
 	    });
 	    scope.downloadProgress = 0;
 	    XIMSS.getSession().then(
@@ -832,13 +832,13 @@ angular.module('drive.services', ['drive.config'])
 			q.resolve(file._fileName + " downloaded.");
 	    	    }, function(err) {
 			downloadPopup.close();
-			q.reject(err);
+			// q.reject(err);
 	    	    }, function (progress) {
 			q.notify(progress);
 			scope.downloadProgressLoaded = scope.sizeReadable(progress.loaded);
 	    		scope.downloadProgress = (Math.round(100 * progress.loaded/progress.total));
 	    	    });
-		    // scope.cancelDownload = downloadPromice.abort;
+		    scope.cancelDownload = downloadPromice.abort;
 		},
 		function (error) {
 		    q.reject(error);
@@ -852,7 +852,9 @@ angular.module('drive.services', ['drive.config'])
 	var self = this;
 	self.resize = function (file, dest, MAX_WIDTH, MAX_HEIGHT) {
 	    var q = $q.defer();
-	    $cordovaFile.readAsDataURL(file).then(
+	    var folder = file.substring(0,file.lastIndexOf('/') + 1);
+	    var filename = file.substring(file.lastIndexOf('/') + 1);
+	    $cordovaFile.readAsDataURL(folder, filename).then(
 		function (data) {
 		    var image = new Image();
 		    image.onload = function(){
@@ -883,12 +885,20 @@ angular.module('drive.services', ['drive.config'])
 			} else {
 			    buf =  _base64ToArrayBuffer(canvas.toDataURL("image/jpeg", 0.9));
 			}
-			$cordovaFile.writeFile(dest, buf).then(
+
+			var filename = dest.substring(dest.lastIndexOf('/') + 1);
+			$cordovaFile.writeFile(folder, filename, buf, true).then(
 			    function () {
 				q.resolve(1);
+			    },
+			    function (err) {
+				console.log(JSON.stringify(err));
+				q.reject(err);
 			    });
 		    };
 		    image.src = data;
+		}, function (err) {
+		    q.reject(err);
 		}
 	    );
 	    return q.promise;
