@@ -8,7 +8,7 @@ angular.module('drive.services', ['drive.config'])
 	    Accounts.getLastUsed().then(
 		function (account) {
 		    // TODO: check OS
-		    self.baseRoot = cordova.file.externalRootDirectory.replace("file://", "");
+		    self.baseRoot = cordova.file.externalRootDirectory;
 		    self.base = self.baseRoot + "/ProntoDrive/" + account.account + "/";
 		    q.resolve(self.base);
 		},

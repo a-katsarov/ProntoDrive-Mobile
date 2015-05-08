@@ -187,7 +187,7 @@ angular.module('drive.controllers', ['drive.config'])
 	    // Find local downloaded files
 	    angular.forEach(fileList, function(value, key) {
 	    	var fullpath = basePath.base + $scope.path + value._fileName;
-	    	$cordovaFile.checkFile(fullpath.replace("file://", "")).then(
+	    	$cordovaFile.checkFile(basePath.base + $scope.path, value._fileName).then(
 	    	    function (res) {
 	    		value.local = true;
 			var ext = value._fileName.substring(value._fileName.lastIndexOf('.')+1).toLowerCase();
@@ -197,7 +197,10 @@ angular.module('drive.controllers', ['drive.config'])
 			if (ext == "jpg" || ext == "jpeg" || ext == "png") {
 			    value.img = true
 			}
-	    	    }
+	    	    },
+		    function (err) {
+			// console.log(JSON.stringify(err));
+		    }
 	    	);
 	    });
 	    return fileList;
@@ -315,7 +318,7 @@ angular.module('drive.controllers', ['drive.config'])
 			hideSheet();
 		    },
 		    destructiveButtonClicked: function() {
-			$cordovaFile.removeFile(fullPath).then(function(result) {
+			$cordovaFile.removeFile(fullPath.substring(0,fullPath.lastIndexOf('/') + 1), file._fileName).then(function(result) {
 			    $cordovaToast.show("File deleted.", 'long', 'bottom');
 			    file.local = false;
 			    file.img = false;
@@ -660,24 +663,26 @@ angular.module('drive.controllers', ['drive.config'])
 	};
 	$scope.browseFolder = function (path) {
 	    // TODO: Do a check for OS in order to replace
-	    path = path.replace("file://", "");
+	    // path = path.replace("file://", "");
 	    $ionicLoading.show({
 	    	templateUrl: 'templates/loading.html'
 	    });
 	    $scope.browsePath = path;
-	    $cordovaFile.listDir(path).then(
-		function (ok) {
-		    $scope.uploadItems = ok.sort(compareFilesAndFoldersUpload).filter(function (item) {
-			if (item.name.match(/^\./))
-			    return false;
-			return true;
-		    });
-		    $ionicScrollDelegate.$getByHandle('uploadModalContent').scrollTop(true);
-		    $ionicLoading.hide();
-		},
-		function (error) {
-		    console.log("Error: " + JSON.stringify(error));
-		}
+	    var folder = path.substring(0, path.lastIndexOf('/', path.length - 2) + 1);
+	    var dir = path.substring(path.lastIndexOf('/', path.length - 2) + 1);
+	    $cordovaFile.listDir(folder, dir).then(
+	    	function (ok) {
+	    	    $scope.uploadItems = ok.sort(compareFilesAndFoldersUpload).filter(function (item) {
+	    		if (item.name.match(/^\./))
+	    		    return false;
+	    		return true;
+	    	    });
+	    	    $ionicScrollDelegate.$getByHandle('uploadModalContent').scrollTop(true);
+	    	    $ionicLoading.hide();
+	    	},
+	    	function (error) {
+	    	    console.log("Error: " + JSON.stringify(error));
+	    	}
 	    );
 	};
 
