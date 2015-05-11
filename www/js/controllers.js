@@ -90,7 +90,7 @@ angular.module('drive.controllers', ['drive.config'])
 	    return Math.round(10 * bytes / Math.pow(k, i))/10  + sizes[i];
 	};
     })
-    .controller('HomeCtrl', function($scope, $stateParams, $ionicActionSheet, $ionicPlatform, $ionicLoading, basePath, XIMSS, $timeout, $filter, $cordovaFile, $prefs, $ionicScrollDelegate, $ionicPopup, $cordovaFileTransfer, $cordovaToast, Accounts, $cordovaClipboard, $ionicModal, Opener, Downloader, $rootScope, $state, ImageResizer, IMAGES_CONFIG) {
+    .controller('HomeCtrl', function($scope, $stateParams, $ionicActionSheet, $ionicPlatform, $ionicLoading, basePath, XIMSS, $timeout, $filter, $cordovaFile, $prefs, $ionicScrollDelegate, $ionicPopup, $cordovaFileTransfer, $cordovaToast, Accounts, $cordovaClipboard, $ionicModal, Opener, Downloader, $rootScope, $state, ImageResizer, IMAGES_CONFIG, $cordovaSocialSharing) {
 	$scope.searches = {};
 	$scope.path = $stateParams.path;
 	var folders = $scope.path.split("/");
@@ -379,6 +379,9 @@ angular.module('drive.controllers', ['drive.config'])
 		function (account) {
 		    var password = file.shared ? file.shared : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 8);
 		    var filePath = ($stateParams.path ?  ($stateParams.path + "/") : "") + file._fileName;
+		    $scope.shareFilePath = "private/" + filePath;
+		    $scope.shareFile = file;
+		    $scope.sharePassword = password;
 		    if (file._size) {
 			$scope.formData = {
 			    shared: true,
@@ -390,33 +393,43 @@ angular.module('drive.controllers', ['drive.config'])
 			    link: "http://" + account.host + "/filebrowser.wcgp?subDir=~" + account.account + "/protected/pwd/" + password + "/" + filePath
 			};
 		    }
-
+		    if (!file.shared) {
+			$scope.shareChanged();
+		    }
 		    var sharePopup = $ionicPopup.show({
 			templateUrl: "templates/shareLink.html",
 			title: 'Share',
 			subTitle: file._fileName,
 			scope: $scope,
 			buttons: [
-			    {text: 'Cancel'},
+			    {text: 'Close'},
 			    {
-				text: 'Save',
+				text: 'Share',
 				type: 'button-positive',
 				onTap: function(e) {
 				    e.preventDefault();
-				    XIMSS.updateAccessPwd("private/" + filePath, $scope.formData.shared ? password : false).then(
-					function (result) {
-					    sharePopup.close();
-					    file.shared = $scope.formData.shared?password:false;
-					},
-					function (err) {
-					    $cordovaToast.show(err, 'long', 'bottom');
-					}
-				    );
+				    $cordovaSocialSharing.share(account.account + " has shared a file or folder with you:" , null, null, $scope.formData.link).then(function () {
+					sharePopup.close();
+				    }, function (err) {
+					$cordovaToast.show(err, 'long', 'bottom');
+				    });
+
 				}
 			    }
 			]
 		    });
 		});
+	};
+	$scope.shareChanged = function () {
+
+	    XIMSS.updateAccessPwd($scope.shareFilePath, $scope.formData.shared ? $scope.sharePassword : false).then(
+		function (result) {
+		    $scope.shareFile.shared = $scope.formData.shared?$scope.sharePassword:false;
+		},
+		function (err) {
+		    $cordovaToast.show(err, 'long', 'bottom');
+		}
+	    );
 	};
 
 	$scope.copyLink = function (link) {
