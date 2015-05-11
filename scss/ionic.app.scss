@@ -480,6 +480,34 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
                 z-index: -1000;
                 overflow: hidden;
                 }
+.scroll {
+          height: 100%;
+          }
+.slider {
+          height: 100%;
+          }
+.slider-slide {
+                height: 100%;
+                position: relative;
+                }
+.gallery {
+           text-align: center;
+           color: #ffffff;
+           background-color: #000000;
+           font-size: 0px;
+           }
+.gallery img {
+               max-width: 99%;
+               max-height: 100%;
+               display: inline-block;
+               vertical-align: middle;
+               }
+.gallery .dummy {
+                  width: 0px;
+                  height: 100%;
+                  display: inline-block;
+                  vertical-align: middle;
+                  }
 
 @media (min-width: 800px) {
   .gridview .item {

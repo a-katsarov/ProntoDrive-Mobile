@@ -37,7 +37,7 @@
       	<i class="icon {{getIcon(folderItem)}} filetype-icon"></i>
 	<ion-spinner class="spinner-dark" ng-if="folderItem.loading"></ion-spinner>
 	<inline-audio ng-if="folderItem.audioplay && folderItem.local" progress="folderItem.progress" paused="folderItem.paused" size="{{iface.grid?'64':'32'}}" ng-click="playAudio(folderItem)"></inline-audio>
-	<div ng-if="folderItem.img && folderItem.local" class="img-wrap"><!--
+	<div ng-if="folderItem.img && folderItem.local" class="img-wrap" ng-click="viewFile(folderItem)"><!--
        --><div class="dummy"></div><!--
        --><img ng-src="{{base}}{{path}}.thumb_{{folderItem._fileName}}" alt="" /><!--
      --></div>

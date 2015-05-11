@@ -27,6 +27,8 @@ angular.module('drive.controllers', ['drive.config'])
 		    $cordovaToast.show(error, 'long', 'bottom');
 		}
 	    );
+	    screen.unlockOrientation();
+
 	});
 	// Global account management functions
 	// show add account dialg
@@ -605,23 +607,21 @@ angular.module('drive.controllers', ['drive.config'])
 	    } else if ((ext == "mp3" || ext == "wav" || ext == "oga" || ext == "ogg") && $scope.checkAudioFormat(ext)) {
 		$scope.playAudio(folderItem);
 	    } else if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif" || ext == "tiff" || ext == "tif" || ext == "bmp") {
-		// var storageBase = cordova.file.externalRootDirectory.replace("file://", "");
-		// $cordovaFile.listDir(basePath.base + $scope.path).then(function(result) {
-		//     images = $filter('filter')(result, function (item, index) {
-		//     	if (item.isFile && item.name.match(/\.(jpg|jpeg|png|gif|tif|tiff|bmp)$/i) )
-		//     	    return true;
-		//     	return false;
-		//     }).map(function (image) {
-		// 	return  (storageBase + image.fullPath).replace(/\/+/g, "/");
-		//     }).sort();
-		//     var index = images.indexOf(filePath.replace("file://", "").replace(/\/+/g, "/"));
-		//     $rootScope.images = images;
-		//     $state.go('imageviewer', {
-		// 	index: index
-		//     });
-		// }, function(err) {
-		//     // An error occurred. Show a message to the user
-		// });
+		images = $filter('filter')($scope.folderItems, function (item, index) {
+		    if (item.local && item._fileName.match(/\.(jpg|jpeg|png)$/i) )
+		    	return true;
+		    return false;
+		}).map(function (image) {
+		    return  (basePath.base + $stateParams.path + image._fileName).replace(/\/+/g, "/");
+		}).sort();
+		var index = images.indexOf(filePath.replace(/\/+/g, "/"));
+		$rootScope.images = images.map(function (item) {
+		    return encodeURI(item.replace(/^(.*)\/(.*?)$/, "$1/.preview_$2"));
+
+		});
+		$state.go('imageviewer', {
+			index: index
+		});
 	    } else {
 		window.plugins.fileOpener.open(filePath);
 	    }
@@ -972,7 +972,12 @@ angular.module('drive.controllers', ['drive.config'])
 // Image viewer
     .controller('ImageViewerCtrl', function($scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $timeout, $ionicActionSheet) {
 	// $scope.$root.tabsHidden = "tabs-item-hide";
-	// $scope.hiddenHeader = false;
+	$scope.hiddenHeader = false;
+	$scope.$on('$ionicView.beforeLeave', function () {
+	    if (! StatusBar.isVisible) {
+		StatusBar.show();
+	    }
+	});
 	$scope.visibleImages = new Array($rootScope.images.length);
 	$scope.visibleImages[$stateParams.index] = $rootScope.images[$stateParams.index];
 	$timeout(function () {
@@ -1007,21 +1012,21 @@ angular.module('drive.controllers', ['drive.config'])
 		$scope.addPrevNextImage($index);
 	    }, 500);
 	};
-	$scope.openWith = function () {
-	    var hideSheet = $ionicActionSheet.show({
-		buttons: [
-		    { text: 'Open with' }
-		],
-		cancelText: 'Cancel',
-		cancel: function() {
-		    // add cancel code..
-		},
-		buttonClicked: function(index) {
-		    window.plugins.fileOpener.open("file://" + $rootScope.images[$ionicSlideBoxDelegate.currentIndex()]);
-		    hideSheet();
-		}
-	    });
-	};
+	// $scope.openWith = function () {
+	//     var hideSheet = $ionicActionSheet.show({
+	// 	buttons: [
+	// 	    { text: 'Open with' }
+	// 	],
+	// 	cancelText: 'Cancel',
+	// 	cancel: function() {
+	// 	    // add cancel code..
+	// 	},
+	// 	buttonClicked: function(index) {
+	// 	    window.plugins.fileOpener.open("file://" + $rootScope.images[$ionicSlideBoxDelegate.currentIndex()]);
+	// 	    hideSheet();
+	// 	}
+	//     });
+	// };
     })
 
 
