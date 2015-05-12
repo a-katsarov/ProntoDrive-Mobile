@@ -92,7 +92,7 @@ angular.module('drive.controllers', ['drive.config'])
 	    return Math.round(10 * bytes / Math.pow(k, i))/10  + sizes[i];
 	};
     })
-    .controller('HomeCtrl', function($scope, $stateParams, $ionicActionSheet, $ionicPlatform, $ionicLoading, basePath, XIMSS, $timeout, $filter, $cordovaFile, $prefs, $ionicScrollDelegate, $ionicPopup, $cordovaFileTransfer, $cordovaToast, Accounts, $cordovaClipboard, $ionicModal, Opener, Downloader, $rootScope, $state, ImageResizer, IMAGES_CONFIG, $cordovaSocialSharing) {
+    .controller('HomeCtrl', function($scope, $stateParams, $ionicActionSheet, $ionicPlatform, $ionicLoading, basePath, XIMSS, $timeout, $filter, $cordovaFile, $prefs, $ionicScrollDelegate, $ionicPopup, $cordovaFileTransfer, $cordovaToast, Accounts, $cordovaClipboard, $ionicModal, Opener, Downloader, $rootScope, $state, ImageResizer, IMAGES_CONFIG, $cordovaSocialSharing, $q) {
 	$scope.searches = {};
 	$scope.path = $stateParams.path;
 	var folders = $scope.path.split("/");
@@ -158,23 +158,25 @@ angular.module('drive.controllers', ['drive.config'])
 	// Find local files
 	$scope.findLocal = function (fileList) {
 	    if (fileList && fileList.length) {
-		// Get shared files
- 		XIMSS.getAllAttributes(fileList).then(
-		    function (response) {
-			if (response)
-			    for (var i = 0; i < response.length; i++) {
-				if (response[i].ACL) {
-				    fileList[response[i]._id].acl = response[i].ACL;
+		if ( !$stateParams.path.match(/^\~/) ) {
+		    // Get shared files
+ 		    XIMSS.getAllAttributes(fileList).then(
+			function (response) {
+			    if (response)
+				for (var i = 0; i < response.length; i++) {
+				    if (response[i].ACL) {
+					fileList[response[i]._id].acl = response[i].ACL;
+				    }
+				    if (response[i].accessPwd) {
+					fileList[response[i]._id].shared = response[i].accessPwd.key;
+				    }
 				}
-				if (response[i].accessPwd) {
-				    fileList[response[i]._id].shared = response[i].accessPwd.key;
-				}
-			    }
-		    },
-		    function (error) {
-			// $cordovaToast.show(error, 'long', 'bottom');
-		    }
-		);
+			},
+			function (error) {
+			    // $cordovaToast.show(error, 'long', 'bottom');
+			}
+		    );
+		}
 		// Get folders sizes
  		XIMSS.getFoldersInfo(fileList).then(
 		    function (response) {
@@ -192,21 +194,23 @@ angular.module('drive.controllers', ['drive.config'])
 	    // Find local downloaded files
 	    angular.forEach(fileList, function(value, key) {
 	    	var fullpath = basePath.base + $scope.path + value._fileName;
-	    	$cordovaFile.checkFile(basePath.base + $scope.path, value._fileName).then(
-	    	    function (res) {
-	    		value.local = true;
-			var ext = value._fileName.substring(value._fileName.lastIndexOf('.')+1).toLowerCase();
-			if ($scope.checkAudioFormat(ext)) {
-			    value.audioplay = basePath.base + $scope.path + value._fileName;
+		if (value._size) {
+	    	    $cordovaFile.checkFile(basePath.base + $scope.path, value._fileName).then(
+	    		function (res) {
+	    		    value.local = true;
+			    var ext = value._fileName.substring(value._fileName.lastIndexOf('.')+1).toLowerCase();
+			    if ($scope.checkAudioFormat(ext)) {
+				value.audioplay = basePath.base + $scope.path + value._fileName;
+			    }
+			    if (ext == "jpg" || ext == "jpeg" || ext == "png") {
+				value.img = true
+			    }
+	    		},
+			function (err) {
+			    // console.log(JSON.stringify(err));
 			}
-			if (ext == "jpg" || ext == "jpeg" || ext == "png") {
-			    value.img = true
-			}
-	    	    },
-		    function (err) {
-			// console.log(JSON.stringify(err));
-		    }
-	    	);
+	    	    );
+		}
 	    });
 	    return fileList;
 	};
@@ -252,11 +256,23 @@ angular.module('drive.controllers', ['drive.config'])
 	    };
 	};
 
-	// $scope.dateReadable = function (XIMSSdate) {
-	//     if (XIMSSdate)
-	// 	return XIMSSdate.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})/i, "$3/$2/$1 $4:$5");
-	//     return "";
-	// };
+	$scope.discardACL = function (acl) {
+	    XIMSS.removeSubsRequest(acl).then(
+		function (result) {
+		    $scope.subsAlets = $scope.subsAlets.filter(function (item) { return item != acl });
+		},
+		function (err) {
+		    $cordovaToast.show(err, 'long', 'bottom');
+		});
+	};
+	$scope.acceptACL = function (acl) {
+	    XIMSS.acceptSubsRequest(acl).then(function () {
+		$scope.subsAlets = $scope.subsAlets.filter(function (item) { return item != acl });
+		$scope.$broadcast('forceReload');
+	    },function () {
+		$cordovaToast.show(err, 'long', 'bottom');
+	    });
+	};
 
 	// Get icon types
 	$scope.getIcon = function (item) {
@@ -591,9 +607,10 @@ angular.module('drive.controllers', ['drive.config'])
 		    function (result) {
 			$cordovaToast.show(result, 'long', 'bottom');
 			$timeout(function () {
-			    $scope.checkImageAndScale(basePath.base + $scope.path + folderItem._fileName, folderItem);
+			    $scope.checkImageAndScale(basePath.base + $scope.path + folderItem._fileName, folderItem).then(function () {
+				$scope.openFile(folderItem);
+			    });
 			});
-			$scope.openFile(folderItem);
 		    },
 		    function (error) {
 			$cordovaToast.show(error, 'long', 'bottom');
@@ -604,18 +621,25 @@ angular.module('drive.controllers', ['drive.config'])
 	}
 
 	$scope.checkImageAndScale = function (file, item) {
+	    var q = $q.defer();
 	    var ext = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
 	    if (ext == "jpg" || ext == "jpeg" || ext == "png") {
 		item.loading = true;
 		var folder = file.substring(0,file.lastIndexOf('/') + 1);
 		var filename = file.substring(file.lastIndexOf('/') + 1);
-		ImageResizer.resize(file, folder + ".thumb_" + filename, IMAGES_CONFIG.thMaxWidth, IMAGES_CONFIG.thMaxHeight).then( function () {
-			ImageResizer.resize(file, folder + ".preview_" + filename, IMAGES_CONFIG.previewMaxWidth, IMAGES_CONFIG.previewMaxHeight).then( function () {
-			    item.loading = false;
-			    item.img = true;
+		$cordovaFile.createDir(folder, ".thumb", true).then( function () {
+		    ImageResizer.resize(file, folder + ".thumb/" + filename, IMAGES_CONFIG.thMaxWidth, IMAGES_CONFIG.thMaxHeight).then( function () {
+			$cordovaFile.createDir(folder, ".preview", true).then( function () {
+			    ImageResizer.resize(file, folder + ".preview/" + filename, IMAGES_CONFIG.previewMaxWidth, IMAGES_CONFIG.previewMaxHeight).then( function () {
+				item.loading = false;
+				item.img = true;
+				q.resolve(1);
+			    });
 			});
+		    });
 		});
 	    }
+	    return q.promise;
 	}
 
 	$scope.checkAudioFormat = function (format) {
@@ -672,7 +696,7 @@ angular.module('drive.controllers', ['drive.config'])
 		}).sort();
 		var index = images.indexOf(filePath.replace(/\/+/g, "/"));
 		$rootScope.images = images.map(function (item) {
-		    return encodeURI(item.replace(/^(.*)\/(.*?)$/, "$1/.preview_$2"));
+		    return encodeURI(item.replace(/^(.*)\/(.*?)$/, "$1/.preview/$2"));
 
 		});
 		$state.go('imageviewer', {
@@ -1077,7 +1101,7 @@ angular.module('drive.controllers', ['drive.config'])
 		cancel: function() {
 		},
 		buttonClicked: function(index) {
-		    Opener.open($rootScope.images[$ionicSlideBoxDelegate.currentIndex()].replace(".preview_", ""));
+		    Opener.open($rootScope.images[$ionicSlideBoxDelegate.currentIndex()].replace(/\/\.preview\//g, "/"));
 		    hideSheet();
 		}
 	    });

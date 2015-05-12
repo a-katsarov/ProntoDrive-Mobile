@@ -887,6 +887,7 @@ angular.module('drive.services', ['drive.config'])
 			}
 
 			var filename = dest.substring(dest.lastIndexOf('/') + 1);
+			var folder = dest.substring(0,dest.lastIndexOf('/') + 1);
 			$cordovaFile.writeFile(folder, filename, buf, true).then(
 			    function () {
 				q.resolve(1);

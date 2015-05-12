@@ -29,6 +29,23 @@
        refreshing-text="Reloading"
        ></ion-refresher>
     <div class="list" ng-class="{gridview: iface.grid==true}">
+      <!-- New subscription alerts -->
+      <div
+	 ng-repeat="alert in subsAlets"
+	 class="item item-text-wrap"
+	 ng-style="{width: '100%'}"
+	 >
+	<p>Other user has shared the following file/folder with you: <strong>{{alert}}</strong></p>
+	<div class="button-bar">
+	  <button class="button button-assertive" ng-click="discardACL(alert)">
+	    Discard
+	  </button>
+	  <button class="button  button-balanced" ng-click="acceptACL(alert)">
+	    Accept
+	  </button>
+	</div>
+      </div>
+      <!-- Listing folder -->
       <div
 	 ng-repeat="folderItem in folderItems | fileFilter:searches"
 	 class="item item-icon-left item-icon-right{{folderItem._size?'':' folder'}}"
@@ -39,7 +56,7 @@
 	<inline-audio ng-if="folderItem.audioplay && folderItem.local" progress="folderItem.progress" paused="folderItem.paused" size="{{iface.grid?'64':'32'}}" ng-click="playAudio(folderItem)"></inline-audio>
 	<div ng-if="folderItem.img && folderItem.local" class="img-wrap" ng-click="viewFile(folderItem)"><!--
        --><div class="dummy"></div><!--
-       --><img ng-src="{{base}}{{path}}.thumb_{{folderItem._fileName}}" alt="" /><!--
+       --><img ng-src="{{base}}{{path}}.thumb/{{folderItem._fileName}}" alt="" /><!--
      --></div>
 	<!-- Link for folders -->
 	<a ng-hide="folderItem._size" href="#/home/{{path}}/{{folderItem._fileName}}/" class="item-content">
@@ -52,9 +69,10 @@
 	<p class="size" ng-if="folderItem._type=='directory'">{{sizeReadable(folderSize[folderItem._fileName])}}</p>
 	<p class="size" ng-if="folderItem._type!='directory'">{{sizeReadable(folderItem._size)}}</p>
 	<span class="item-icons">
-	  <i class="icon ion-earth" ng-class="{'on': folderItem.shared}"></i>
-	  <i class="icon ion-person" ng-class="{'on': folderItem.acl}"></i>
+	  <i ng-if="!insideSub" class="icon ion-earth" ng-class="{'on': folderItem.shared}"></i>
+	  <i ng-if="!insideSub" class="icon ion-person" ng-class="{'on': folderItem.acl}"></i>
 	  <i ng-if="folderItem._type!='directory'" class="icon fa fa-hdd-o" ng-class="{'on': folderItem.local}"></i>
+	  <i ng-if="folderItem.subscription" class="icon ion-link on"></i>
 	</span>
 	<button ng-hide="insideSub && ! folderItem._size && ! folderItem.subscription" class="button button-icon icon ion-ios-more more-button" ng-click="fileAction(folderItem)"></button>
       </div>
