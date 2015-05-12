@@ -7677,13 +7677,14 @@ a.button {
 .more-button {
   color: #d3d3d3; }
 
-.listview .item h2 {
-  margin: 10px 0; }
+.item h2 {
+  /* margin: 10px 0; */
+  line-height: 2.5em; }
 
 .gridview .item {
   text-shadow: 0 0 4px #ffffff; }
 
-.listview .item .size {
+.item .size {
   position: absolute;
   bottom: 0px;
   left: 11px;
@@ -7987,7 +7988,7 @@ a.button {
   bottom: 0;
   z-index: 100; }
 
-.listview .img-wrap {
+.img-wrap {
   position: absolute;
   width: 32px;
   height: 32px;
@@ -7996,13 +7997,13 @@ a.button {
   margin-top: -16px;
   text-align: center; }
 
-.listview .img-wrap img {
+.img-wrap img {
   max-width: 99%;
   max-height: 100%;
   display: inline-block;
   vertical-align: middle; }
 
-.listview .img-wrap .dummy {
+.img-wrap .dummy {
   width: 0px;
   height: 100%;
   display: inline-block;
@@ -8011,12 +8012,22 @@ a.button {
 .loading .filetype-icon, .img .filetype-icon {
   visibility: hidden; }
 
-.gridview img {
+.gridview .img-wrap {
+  position: static;
+  display: inline; }
+
+.gridview .img-wrap .dummy {
+  display: none; }
+
+.gridview .img-wrap img {
   position: absolute;
   top: 50%;
   left: 50%;
   -webkit-transform: translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
+  max-width: auto;
+  max-height: auto;
+  vertical-align: baseline;
   min-width: 100%;
   min-height: 100%;
   width: auto;

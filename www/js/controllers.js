@@ -98,6 +98,9 @@ angular.module('drive.controllers', ['drive.config'])
 	var folders = $scope.path.split("/");
 	$scope.title = folders[folders.length - 2] || 'Pronto!Drive';
 	$scope.iface.grid = false;
+	$scope.insideSub = false;
+	if ($stateParams.path.match(/^~/))
+	    $scope.insideSub = true;
 	// List folders
 	$scope.listFolder = function () {
 	    // Start with simple debounce
@@ -138,7 +141,7 @@ angular.module('drive.controllers', ['drive.config'])
 		    $timeout(function () {
 			$scope.folderItems = $scope.findLocal(items);
 		    });
-		    // $scope.listSubscriptions();
+		    $scope.listSubscriptions();
 		},
 		function (error) {
 		    $scope.$broadcast('scroll.refreshComplete');
@@ -148,7 +151,7 @@ angular.module('drive.controllers', ['drive.config'])
 			$scope.noConnection = true;
 		    }
 		    $scope.folderItems = []; // Empty the folder items for the current view
-		    // $scope.listSubscriptions(); // List subscriptions even if no files
+		    $scope.listSubscriptions(); // List subscriptions even if no files
 		}
 	    );
 	};
@@ -206,6 +209,47 @@ angular.module('drive.controllers', ['drive.config'])
 	    	);
 	    });
 	    return fileList;
+	};
+
+	$scope.listSubscriptions = function () {
+	    // Listing Subscriptions
+	    if ((! $stateParams.path) || $stateParams.path.match(/^\~/)) {
+		$scope.subscriptions = [];
+		XIMSS.listSubscriptions().then(
+		    function (subs) {
+			if (!subs) return;
+			// Extract only the users for the index page
+			if (! $stateParams.path) {
+			    $scope.subscriptions = subs.map(function (item) {
+				return item._fileName.split("/")[0];
+			    }).filter(function (value, index, self) {
+				return self.indexOf(value) === index;
+			    });
+			}
+			// Get the files and folders for subscription
+			var subfolders = subs.map(function (item) {
+			    return item._fileName;
+			});
+			subfolders = subfolders.map(function (item) {
+			    return item.split($stateParams.path)[1];
+			}).filter(function (item) {
+			    if (item)
+				return true;
+			    return false;
+			});
+			XIMSS.checkSubsFiles(subfolders, $stateParams.path).then(function (newElements) {
+			    if (! $scope.folderItems)
+				$scope.folderItems = [];
+			    // check if file/folder already listed
+			    $scope.folderItems = $scope.folderItems.filter( function (item) {
+				return newElements.map(function (i) {return i._fileName}).indexOf(item._fileName) < 0;
+			    });
+			    $scope.folderItems = $scope.folderItems.concat(newElements);
+			    $scope.folderItems = $scope.folderItems.sort(compareFilesAndFolders);
+			    $scope.folderItems = $scope.findLocal($scope.folderItems);
+			});
+		    });
+	    };
 	};
 
 	// $scope.dateReadable = function (XIMSSdate) {
@@ -374,6 +418,18 @@ angular.module('drive.controllers', ['drive.config'])
 	    }
 	    //actionOptions.destructiveText = "Delete local file";
 	    hideSheet = $ionicActionSheet.show(actionOptions);
+	};
+
+	$scope.unsubscribe = function (item) {
+	    XIMSS.unsubscribe($stateParams.path + "/" + item._fileName).then(
+		function () {
+		    $cordovaToast.show("Unsubscribed", 'long', 'bottom');
+ 		    $scope.$broadcast('forceReload');
+		},
+		function (err) {
+		    $cordovaToast.show(err, 'long', 'bottom');
+		}
+	    );
 	};
 
 	$scope.updateAccessPwd = function (file) {

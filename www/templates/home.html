@@ -28,7 +28,7 @@
        pulling-text="Pull to reload"
        refreshing-text="Reloading"
        ></ion-refresher>
-    <div class="list" ng-class="{gridview: iface.grid==true, listview: iface.grid!=true}">
+    <div class="list" ng-class="{gridview: iface.grid==true}">
       <div
 	 ng-repeat="folderItem in folderItems | fileFilter:searches"
 	 class="item item-icon-left item-icon-right{{folderItem._size?'':' folder'}}"
@@ -42,7 +42,7 @@
        --><img ng-src="{{base}}{{path}}.thumb_{{folderItem._fileName}}" alt="" /><!--
      --></div>
 	<!-- Link for folders -->
-	<a ng-hide="folderItem._size" href="#/home/{{path}}{{folderItem._fileName}}/" class="item-content">
+	<a ng-hide="folderItem._size" href="#/home/{{path}}/{{folderItem._fileName}}/" class="item-content">
 	  <h2>{{folderItem._fileName}}</h2>
 	</a>
 	<!-- Link for files -->
@@ -56,7 +56,17 @@
 	  <i class="icon ion-person" ng-class="{'on': folderItem.acl}"></i>
 	  <i ng-if="folderItem._type!='directory'" class="icon fa fa-hdd-o" ng-class="{'on': folderItem.local}"></i>
 	</span>
-	<button class="button button-icon icon ion-ios-more more-button" ng-click="fileAction(folderItem)"></button>
+	<button ng-hide="insideSub && ! folderItem._size && ! folderItem.subscription" class="button button-icon icon ion-ios-more more-button" ng-click="fileAction(folderItem)"></button>
+      </div>
+      <div
+	 ng-repeat="folderItem in subscriptions"
+	 class="item item-icon-left item-icon-right folder"
+	 >
+      	<i class="icon ion-person positive filetype-icon"></i>
+	<!-- Link for folders -->
+	<a href="#/home/{{folderItem}}/private" class="item-content">
+	  <h2>{{folderItem}}</h2>
+	</a>
       </div>
     </div>
   </ion-content>
