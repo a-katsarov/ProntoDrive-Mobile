@@ -520,6 +520,15 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
                   vertical-align: middle;
                   }
 
+.prompt {
+          text-align: center;
+          color: $lightText;
+          }
+.prompt .icon {
+                font-size: 10em;
+                color: $stable;
+                }
+
 @media (min-width: 800px) {
   .gridview .item {
                     width: 33.3333%;

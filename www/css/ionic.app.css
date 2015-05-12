@@ -8063,6 +8063,14 @@ a.button {
   display: inline-block;
   vertical-align: middle; }
 
+.prompt {
+  text-align: center;
+  color: #d3d3d3; }
+
+.prompt .icon {
+  font-size: 10em;
+  color: #ebebeb; }
+
 @media (min-width: 800px) {
   .gridview .item {
     width: 33.3333%; } }

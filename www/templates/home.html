@@ -19,7 +19,7 @@
     </div>
     <h1 class="title" ng-if="!iface.search"></h1>
     <div side="secondary" class="buttons" ng-if="!iface.search">
-      <button class="button button-clear icon ion-ios-more" ng-click="showGlobalAction()"></button>
+      <button class="button button-clear icon ion-ios-more" ng-if="!noconnection" ng-click="showGlobalAction()"></button>
     </div>
   </ion-header-bar>
   <ion-content delegate-handle="contentScroll">
@@ -87,6 +87,17 @@
 	</a>
       </div>
     </div>
+
+    <div ng-if="nothing" class="item-body prompt">
+      <h2>Nothing here!</h2>
+      <a class="icon ion-upload"></a>
+    </div>
+    <div ng-if="noconnection" class="item-body prompt">
+      <h2>No connection!</h2>
+      <p>Cannot connect to server! Please check your Internet connection.</p>
+      <a class="icon ion-wifi"></a>
+    </div>
+
   </ion-content>
   <ion-footer-bar class="bar-stable">
     <div class="button-bar">

@@ -92,7 +92,7 @@ angular.module('drive.controllers', ['drive.config'])
 	    return Math.round(10 * bytes / Math.pow(k, i))/10  + sizes[i];
 	};
     })
-    .controller('HomeCtrl', function($scope, $stateParams, $ionicActionSheet, $ionicPlatform, $ionicLoading, basePath, XIMSS, $timeout, $filter, $cordovaFile, $prefs, $ionicScrollDelegate, $ionicPopup, $cordovaFileTransfer, $cordovaToast, Accounts, $cordovaClipboard, $ionicModal, Opener, Downloader, $rootScope, $state, ImageResizer, IMAGES_CONFIG, $cordovaSocialSharing, $q) {
+    .controller('HomeCtrl', function($scope, $stateParams, $ionicActionSheet, $ionicPlatform, $ionicLoading, basePath, XIMSS, $timeout, $filter, $cordovaFile, $prefs, $ionicScrollDelegate, $ionicPopup, $cordovaFileTransfer, $cordovaToast, Accounts, $cordovaClipboard, $ionicModal, Opener, Downloader, $rootScope, $state, ImageResizer, IMAGES_CONFIG, $cordovaSocialSharing, $q, $cordovaNetwork) {
 	$scope.searches = {};
 	$scope.path = $stateParams.path;
 	var folders = $scope.path.split("/");
@@ -119,6 +119,9 @@ angular.module('drive.controllers', ['drive.config'])
 	    });
 	    XIMSS.folderListing($stateParams.path || "").then(
 		function (folderItems) {
+		    if (!folderItems) {
+			$scope.nothing = true;
+		    }
 		    $scope.$broadcast('scroll.refreshComplete');
 		    $timeout($ionicLoading.hide, 100);
 		    $scope.requestComplete = true;
@@ -192,26 +195,34 @@ angular.module('drive.controllers', ['drive.config'])
 		);
 	    }
 	    // Find local downloaded files
-	    angular.forEach(fileList, function(value, key) {
-	    	var fullpath = basePath.base + $scope.path + value._fileName;
-		if (value._size) {
-	    	    $cordovaFile.checkFile(basePath.base + $scope.path, value._fileName).then(
-	    		function (res) {
+	    var fullpath = basePath.base + $scope.path;
+	    var folder = fullpath.substring(0, fullpath.lastIndexOf('/', fullpath.length - 2) + 1);
+	    var dir = fullpath.substring(fullpath.lastIndexOf('/', fullpath.length - 2) + 1);
+	    $cordovaFile.listDir(folder, dir).then(
+	    	function (ok) {
+		    var localFiles = ok.filter( function (item) {
+			return item.isFile
+		    }).map(function (item) {
+			return item.name
+		    });
+		    angular.forEach(fileList, function(value, key) {
+			if (localFiles.indexOf(value._fileName) > -1) {
 	    		    value.local = true;
-			    var ext = value._fileName.substring(value._fileName.lastIndexOf('.')+1).toLowerCase();
-			    if ($scope.checkAudioFormat(ext)) {
-				value.audioplay = basePath.base + $scope.path + value._fileName;
-			    }
-			    if (ext == "jpg" || ext == "jpeg" || ext == "png") {
-				value.img = true
-			    }
-	    		},
-			function (err) {
-			    // console.log(JSON.stringify(err));
+	    		    var ext = value._fileName.substring(value._fileName.lastIndexOf('.')+1).toLowerCase();
+	    		    if ($scope.checkAudioFormat(ext)) {
+	    			value.audioplay = basePath.base + $scope.path + value._fileName;
+	    		    }
+	    		    if (ext == "jpg" || ext == "jpeg" || ext == "png") {
+	    			value.img = true
+	    		    }
 			}
-	    	    );
-		}
-	    });
+		    });
+	    	},
+	    	function (error) {
+	    	    console.log("Error: " + JSON.stringify(error));
+	    	}
+	    );
+
 	    return fileList;
 	};
 
@@ -900,25 +911,28 @@ angular.module('drive.controllers', ['drive.config'])
 	    $scope.iface.videoControls.playFile(basePath.base + $scope.path, file, videos);
 	};
 	$ionicPlatform.ready(function() {
+	    $scope.noconnection = $cordovaNetwork.isOffline();
 	    StatusBar.show();
-	    $scope.listFolder();
+	    // if ($cordovaNetwork.isOnline()) {
+	    // 	$scope.listFolder();
+	    // }
 	    $prefs.get("gridView").then(
 		function (state) {
 		    $scope.iface.grid = state;
 		}
 	    );
 	});
+	if ($scope.path) {
+	    $scope.noconnection = $cordovaNetwork.isOffline();
+	}
 	$scope.$on('forceReload', function(event, args) {
 	    $scope.listFolder();
 	});
 
-	// $scope.$on('hwMenu', function(event, args) {
-	//     if ($scope.hideGlobalAction) {
-	// 	$scope.hideGlobalAction();
-	//     } else {
-	// 	$scope.showGlobalAction();
-	//     }
-	// });
+	document.addEventListener("online", function (e) {
+	    $scope.listFolder();
+	    $scope.noconnection = false;
+	}, false);
     })
     .controller('AccountsCtrl', function($scope, $ionicModal, $timeout, $prefs, $cordovaToast, $ionicLoading, Accounts, XIMSS, $ionicPopup) {
 	$scope.initSettings = function () {
