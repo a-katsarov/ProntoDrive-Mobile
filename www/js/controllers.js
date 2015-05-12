@@ -623,7 +623,7 @@ angular.module('drive.controllers', ['drive.config'])
 			index: index
 		});
 	    } else {
-		window.plugins.fileOpener.open(filePath);
+		Opener.open(filePath);
 	    }
 	};
 
@@ -970,7 +970,7 @@ angular.module('drive.controllers', ['drive.config'])
     })
 
 // Image viewer
-    .controller('ImageViewerCtrl', function($scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $timeout, $ionicActionSheet) {
+    .controller('ImageViewerCtrl', function($scope, $stateParams, $rootScope, $ionicSlideBoxDelegate, $timeout, $ionicActionSheet, Opener) {
 	// $scope.$root.tabsHidden = "tabs-item-hide";
 	$scope.hiddenHeader = false;
 	$scope.$on('$ionicView.beforeLeave', function () {
@@ -1012,21 +1012,20 @@ angular.module('drive.controllers', ['drive.config'])
 		$scope.addPrevNextImage($index);
 	    }, 500);
 	};
-	// $scope.openWith = function () {
-	//     var hideSheet = $ionicActionSheet.show({
-	// 	buttons: [
-	// 	    { text: 'Open with' }
-	// 	],
-	// 	cancelText: 'Cancel',
-	// 	cancel: function() {
-	// 	    // add cancel code..
-	// 	},
-	// 	buttonClicked: function(index) {
-	// 	    window.plugins.fileOpener.open("file://" + $rootScope.images[$ionicSlideBoxDelegate.currentIndex()]);
-	// 	    hideSheet();
-	// 	}
-	//     });
-	// };
+	$scope.openWith = function () {
+	    var hideSheet = $ionicActionSheet.show({
+		buttons: [
+		    { text: 'Open with' }
+		],
+		cancelText: 'Cancel',
+		cancel: function() {
+		},
+		buttonClicked: function(index) {
+		    Opener.open($rootScope.images[$ionicSlideBoxDelegate.currentIndex()].replace(".preview_", ""));
+		    hideSheet();
+		}
+	    });
+	};
     })
 
 
