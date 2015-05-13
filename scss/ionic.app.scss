@@ -15,10 +15,17 @@ $royal:                           #886aea !default;
 $dark:                            #444 !default;
 */
 
-$positive: #037ebe;
+/* $positive: #037ebe; */
+/* $stable: #ebebeb; */
+/* $royal: #0a689a; */
+/* $balanced: #1ce102; */
+/* $transBackdrop: rgba(3, 126, 190, 0.95); */
+
+$positive: #f26222;
 $stable: #ebebeb;
-$royal: #0a689a;
-$balanced: #1ce102;
+$royal: #c26222;
+$balanced: #28ABD6;
+$transBackdrop: rgba(242, 98, 34, 0.95);
 
 $lightText: #d3d3d3;
 $lighterText: #f3f3f3;
@@ -191,7 +198,7 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
                                 background: $light;
                                 }
 .modal-accounts {
-                  background: rgba(3, 126, 190, 0.95);
+                  background: $transBackdrop;
                   }
 .modal-accounts .has-footer {
                               bottom: 120px;
@@ -422,6 +429,11 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
                                         background: $positive;
                                         width: 0%;
                                         }
+div.progress {
+               height: 3px;
+               background-color: $positive;
+               position: relative;
+               }
 .video-wrap {
               position: absolute;
               bottom: 64px;
