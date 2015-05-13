@@ -1,5 +1,5 @@
 angular.module('drive.services', ['drive.config'])
-    .factory('basePath', function($q, Accounts, $prefs) {
+    .factory('basePath', function($q, Accounts, $prefs, $cordovaDevice) {
 	var self = this;
 	self.base = "";
 	self.baseRoot = ""
@@ -7,8 +7,11 @@ angular.module('drive.services', ['drive.config'])
     	    var q = $q.defer();
 	    Accounts.getLastUsed().then(
 		function (account) {
-		    // TODO: check OS
-		    self.baseRoot = cordova.file.externalRootDirectory;
+		    if ($cordovaDevice.getPlatform().toLowerCase() == 'android') {
+			self.baseRoot = cordova.file.externalRootDirectory;
+		    } else if ($cordovaDevice.getPlatform().toLowerCase() == 'ios') {
+			self.baseRoot = cordova.file.documentsDirectory;
+		    }
 		    self.base = self.baseRoot + "/ProntoDrive/" + account.account + "/";
 		    q.resolve(self.base);
 		},
@@ -793,14 +796,18 @@ angular.module('drive.services', ['drive.config'])
     .factory('Opener', function () {
 	var self = this;
 	self.open = function (fullPath) {
-	    window.plugins.fileOpener.open(fullPath);
+	    if ($cordovaDevice.getPlatform().toLowerCase() == 'android') {
+		window.plugins.fileOpener.open(fullPath);
+	    } else if ($cordovaDevice.getPlatform().toLowerCase() == 'ios') {
+		LaunchFile(fullPath);
+	    }
 	}
 	return self;
     })
     .factory('Downloader', function ($q, $cordovaFileTransfer, $ionicPopup, XIMSS) {
 	var self = this;
 	self.download = function (file, to, scope) {
-	    scope.cancelDownload = function () {alert(999)};
+	    scope.cancelDownload = function () {};
 	    var q = $q.defer();
 	    var downloadPopup = $ionicPopup.show({
 		templateUrl: "templates/downloading.html",
@@ -820,7 +827,7 @@ angular.module('drive.services', ['drive.config'])
 		    var account = sessionData.account;
 		    var SessionID = sessionData.sessionID;
 		    scope.downloadProgressTotal = scope.sizeReadable(file._size);
-		    var downloadPromice = $cordovaFileTransfer.download((account.ssl?"https://":"http://") + account.host + (account.ssl?":9100":":8100") + "/Session/" + SessionID + "/DOWNLOAD/" + file._directory + file._fileName, to, {}, true);
+		    var downloadPromice = $cordovaFileTransfer.download((account.ssl?"https://":"http://") + account.host + (account.ssl?":9100":":8100") + "/Session/" + SessionID + "/DOWNLOAD/" + file._directory + file._fileName, encodeURI(to), {}, true);
 	    	    downloadPromice.then(function(result) {
 			downloadPopup.close();
 			file.local = true;
@@ -832,7 +839,7 @@ angular.module('drive.services', ['drive.config'])
 			q.resolve(file._fileName + " downloaded.");
 	    	    }, function(err) {
 			downloadPopup.close();
-			// q.reject(err);
+			q.reject(err);
 	    	    }, function (progress) {
 			q.notify(progress);
 			scope.downloadProgressLoaded = scope.sizeReadable(progress.loaded);
@@ -850,6 +857,7 @@ angular.module('drive.services', ['drive.config'])
     })
     .factory('ImageResizer', function ($q, $cordovaFile) {
 	var self = this;
+	var canvas = document.createElement("canvas");
 	self.resize = function (file, dest, MAX_WIDTH, MAX_HEIGHT) {
 	    var q = $q.defer();
 	    var folder = file.substring(0,file.lastIndexOf('/') + 1);
@@ -857,9 +865,7 @@ angular.module('drive.services', ['drive.config'])
 	    $cordovaFile.readAsDataURL(folder, filename).then(
 		function (data) {
 		    var image = new Image();
-		    image.onload = function(){
-			var canvas = document.createElement("canvas");
-
+		    image.onload = function () {
 			// Calculate image size
 			if (image.width > image.height) {
 			    if (image.width > MAX_WIDTH) {
@@ -874,16 +880,17 @@ angular.module('drive.services', ['drive.config'])
 			}
 
 			var ctx = canvas.getContext("2d");
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			canvas.width = image.width;
 			canvas.height = image.height;
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.drawImage(image, 0, 0, image.width, image.height);
+
 			var ext = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
 			var buf;
 			if (ext == "png") {
 			    buf =  _base64ToArrayBuffer(canvas.toDataURL("image/png"));
 			} else {
-			    buf =  _base64ToArrayBuffer(canvas.toDataURL("image/jpeg", 0.9));
+			    buf =  _base64ToArrayBuffer(canvas.toDataURL("image/jpeg", 0.5));
 			}
 
 			var filename = dest.substring(dest.lastIndexOf('/') + 1);
@@ -891,10 +898,12 @@ angular.module('drive.services', ['drive.config'])
 			$cordovaFile.writeFile(folder, filename, buf, true).then(
 			    function () {
 				q.resolve(1);
+				delete image;
 			    },
 			    function (err) {
 				console.log(JSON.stringify(err));
-				q.reject(err);
+				q.reject(err)
+				delete image;
 			    });
 		    };
 		    image.src = data;

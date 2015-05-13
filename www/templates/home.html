@@ -4,7 +4,7 @@
     <button ng-click="openAccountsModal()" ng-if="path==''" class="button button-clear icon ion-ios-person"></button>
   </ion-nav-buttons>
   <ion-nav-buttons side="secondary">
-      <button class="button button-clear icon ion-ios-search" ng-click="iface.search = !iface.search"></button>
+      <button class="button button-clear icon ion-ios-search" wf-tap="iface.search = !iface.search"></button>
   </ion-nav-buttons>
   <!-- Subheader -->
   <ion-header-bar class="bar bar-subheader bar-stable bar-header" ng-class="{'item-input-inset': iface.search}">
@@ -12,14 +12,14 @@
       <i class="icon ion-ios-search placeholder-icon"></i>
       <input type="search" placeholder="Search" ng-model="searches.string">
     </label>
-    <button class="button button-clear button-icon ion-ios-close-empty" ng-if="iface.search" ng-click="searches.string = ''; iface.search = false"></button>
+    <button class="button button-clear button-icon ion-ios-close-empty" ng-if="iface.search" wf-tap="searches.string = ''; iface.search = false"></button>
     <div side="pimary" class="buttons" ng-if="!iface.search">
       <button class="button button-clear icon ion-ios-list-outline" ng-class="{on: iface.grid!=true}" ng-click="setGridView(false)"></button>
       <button class="button button-clear icon ion-grid" ng-class="{on: iface.grid==true}" ng-click="setGridView(true)"></button>
     </div>
     <h1 class="title" ng-if="!iface.search"></h1>
     <div side="secondary" class="buttons" ng-if="!iface.search">
-      <button class="button button-clear icon ion-ios-more" ng-if="!noconnection" ng-click="showGlobalAction()"></button>
+      <button class="android-more button button-clear icon ion-ios-more" ng-if="!noconnection" ng-click="showGlobalAction()"></button>
     </div>
   </ion-header-bar>
   <ion-content delegate-handle="contentScroll">
@@ -50,11 +50,12 @@
 	 ng-repeat="folderItem in folderItems | fileFilter:searches"
 	 class="item item-icon-left item-icon-right{{folderItem._size?'':' folder'}}"
 	 ng-class="{img: folderItem.img && folderItem.local, loading: folderItem.loading}"
+	 ng-style="(folderItem.img && folderItem.local && iface.grid) ? {'background-image': 'url(\'' + base + path + '.thumb/' + folderItem._fileName + '\')'} : {}"
 	 >
       	<i class="icon {{getIcon(folderItem)}} filetype-icon"></i>
 	<ion-spinner class="spinner-dark" ng-if="folderItem.loading"></ion-spinner>
 	<inline-audio ng-if="folderItem.audioplay && folderItem.local" progress="folderItem.progress" paused="folderItem.paused" size="{{iface.grid?'64':'32'}}" ng-click="playAudio(folderItem)"></inline-audio>
-	<div ng-if="folderItem.img && folderItem.local" class="img-wrap" ng-click="viewFile(folderItem)"><!--
+	<div ng-if="folderItem.img && folderItem.local && !iface.grid" class="img-wrap" ng-click="viewFile(folderItem)"><!--
        --><div class="dummy"></div><!--
        --><img ng-src="{{base}}{{path}}.thumb/{{folderItem._fileName}}" alt="" /><!--
      --></div>
@@ -77,7 +78,7 @@
 	<button ng-hide="insideSub && ! folderItem._size && ! folderItem.subscription" class="button button-icon icon ion-ios-more more-button" ng-click="fileAction(folderItem)"></button>
       </div>
       <div
-	 ng-repeat="folderItem in subscriptions"
+	 ng-repeat="folderItem in subscriptions | subscriptionsFilter:searches"
 	 class="item item-icon-left item-icon-right folder"
 	 >
       	<i class="icon ion-person positive filetype-icon"></i>
@@ -101,22 +102,22 @@
   </ion-content>
   <ion-footer-bar class="bar-stable">
     <div class="button-bar">
-      <button class="button button-clear icon icon-top ion-ios-folder" ng-class="{'button-positive': searches.folders}" ng-click="toggleFilter('folders')">
+      <button class="button button-clear icon icon-top ion-ios-folder" ng-class="{'button-positive': searches.folders}" wf-tap="toggleFilter('folders')">
     	Folders
       </button>
-      <button class="button button-clear icon icon-top ion-document" ng-class="{'button-positive': searches.docs}" ng-click="toggleFilter('docs')">
+      <button class="button button-clear icon icon-top ion-document" ng-class="{'button-positive': searches.docs}" wf-tap="toggleFilter('docs')">
     	Documents
       </button>
-      <button class="button button-clear icon icon-top ion-ios-musical-notes" ng-class="{'button-positive': searches.sounds}" ng-click="toggleFilter('sounds')">
+      <button class="button button-clear icon icon-top ion-ios-musical-notes" ng-class="{'button-positive': searches.sounds}" wf-tap="toggleFilter('sounds')">
     	Sounds
       </button>
-      <button class="button button-clear icon icon-top ion-image" ng-class="{'button-positive': searches.images}" ng-click="toggleFilter('images')">
+      <button class="button button-clear icon icon-top ion-image" ng-class="{'button-positive': searches.images}" wf-tap="toggleFilter('images')">
     	Images
       </button>
-      <button class="button button-clear icon icon-top ion-ios-play" ng-click="iface.audioControls.togglePanel()" ng-hide="iface.audioControls.paused()">
+      <button class="button button-clear icon icon-top ion-ios-play" wf-tap="iface.audioControls.togglePanel()" ng-hide="iface.audioControls.paused()">
     	Playing
       </button>
-      <button class="button button-clear icon icon-top ion-ios-play" ng-click="iface.videoControls.togglePanel()" ng-hide="iface.videoControls.paused()">
+      <button class="button button-clear icon icon-top ion-ios-play" wf-tap="iface.videoControls.togglePanel()" ng-hide="iface.videoControls.paused()">
     	Playing
       </button>
     </div>

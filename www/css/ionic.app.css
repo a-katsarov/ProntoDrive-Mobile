@@ -33,7 +33,7 @@ $dark:                            #444 !default;
 @font-face {
   font-family: "Ionicons";
   src: url("../lib/ionic/fonts/ionicons.eot?v=2.0.1");
-  src: url("../lib/ionic/fonts/ionicons.eot?v=2.0.1#iefix") format("embedded-opentype"), url("../lib/ionic/fonts/ionicons.ttf?v=2.0.1") format("truetype"), url("../lib/ionic/fonts/ionicons.woff?v=2.0.1") format("woff"), url("../lib/ionic/fonts/ionicons.svg?v=2.0.1#Ionicons") format("svg");
+  src: url("../lib/ionic/fonts/ionicons.eot?v=2.0.1#iefix") format("embedded-opentype"), url("../lib/ionic/fonts/ionicons.ttf?v=2.0.1") format("truetype"), url("../lib/ionic/fonts/ionicons.woff?v=2.0.1") format("woff"), url("../lib/ionic/fonts/ionicons.woff") format("woff"), url("../lib/ionic/fonts/ionicons.svg?v=2.0.1#Ionicons") format("svg");
   font-weight: normal;
   font-style: normal; }
 
@@ -2570,7 +2570,7 @@ body, .ionic-body {
   color: #000;
   word-wrap: break-word;
   font-size: 14px;
-  font-family: "Helvetica Neue", "Roboto", sans-serif;
+  font-family: "Helvetica Neue", "Roboto", "Segoe UI", sans-serif;
   line-height: 20px;
   text-rendering: optimizeLegibility;
   -webkit-backface-visibility: hidden;
@@ -2596,7 +2596,7 @@ body.grade-b, body.grade-c {
   width: auto;
   height: auto; }
 
-.scroll-content-false, .menu .scroll-content.scroll-content-false {
+.menu .scroll-content.scroll-content-false {
   z-index: 11; }
 
 .scroll-view {
@@ -2620,6 +2620,13 @@ body.grade-b, body.grade-c {
   text-size-adjust: none;
   -webkit-transform-origin: left top;
   transform-origin: left top; }
+
+/**
+ * Set ms-viewport to prevent MS "page squish" and allow fluid scrolling
+ * https://msdn.microsoft.com/en-us/library/ie/hh869615(v=vs.85).aspx
+ */
+@-ms-viewport {
+  width: device-width; }
 
 .scroll-bar {
   position: absolute;
@@ -2797,7 +2804,7 @@ cite {
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   color: #000;
   font-weight: 500;
-  font-family: "Helvetica Neue", "Roboto", sans-serif;
+  font-family: "Helvetica Neue", "Roboto", "Segoe UI", sans-serif;
   line-height: 1.2; }
   h1 small, h2 small, h3 small, h4 small, h5 small, h6 small, .h1 small, .h2 small, .h3 small, .h4 small, .h5 small, .h6 small {
     font-weight: normal;
@@ -4139,7 +4146,7 @@ ion-tabs.tabs-color-active-dark .tab-item {
   white-space: nowrap;
   font-weight: 400;
   font-size: 14px;
-  font-family: "Helvetica Neue", "Roboto", sans-serif;
+  font-family: "Helvetica Neue", "Roboto", "Segoe UI", sans-serif;
   opacity: 0.7; }
   .tab-item:hover {
     cursor: pointer; }
@@ -4313,7 +4320,6 @@ ion-tabs.tabs-color-active-dark .tab-item {
     right: 20%;
     bottom: 20%;
     left: 20%;
-    overflow: visible;
     min-height: 240px;
     width: 60%; }
   .modal.ng-leave-active {
@@ -4328,7 +4334,7 @@ ion-tabs.tabs-color-active-dark .tab-item {
     top: 44px; }
   .platform-ios.platform-cordova .modal-wrapper .modal .has-subheader {
     top: 88px; }
-  .platform-ios.platform-cordova .modal-wrapper .modal .has-tabs-top {
+  .platform-ios.platform-cordova .modal-wrapper .modal .has-header.has-tabs-top {
     top: 93px; }
   .platform-ios.platform-cordova .modal-wrapper .modal .has-header.has-subheader.has-tabs-top {
     top: 137px; }
@@ -4550,7 +4556,7 @@ ion-tabs.tabs-color-active-dark .tab-item {
 
 .popup-body {
   padding: 10px;
-  overflow: scroll; }
+  overflow: auto; }
 
 .popup-buttons {
   display: -webkit-box;
@@ -5609,6 +5615,22 @@ a.item-content {
   stop-color: #444; }
 .spinner-spiral.spinner-light .stop2 {
   stop-color: #fff; }
+.spinner-spiral.spinner-stable .stop2 {
+  stop-color: #ebebeb; }
+.spinner-spiral.spinner-positive .stop2 {
+  stop-color: #f26222; }
+.spinner-spiral.spinner-calm .stop2 {
+  stop-color: #11c1f3; }
+.spinner-spiral.spinner-balanced .stop2 {
+  stop-color: #28ABD6; }
+.spinner-spiral.spinner-assertive .stop2 {
+  stop-color: #ef473a; }
+.spinner-spiral.spinner-energized .stop2 {
+  stop-color: #ffc900; }
+.spinner-spiral.spinner-royal .stop2 {
+  stop-color: #c26222; }
+.spinner-spiral.spinner-dark .stop2 {
+  stop-color: #444; }
 
 /**
  * Forms
@@ -5636,7 +5658,7 @@ label, input, button, select, textarea {
   line-height: 1.42857; }
 
 input, button, select, textarea {
-  font-family: "Helvetica Neue", "Roboto", sans-serif; }
+  font-family: "Helvetica Neue", "Roboto", "Segoe UI", sans-serif; }
 
 .item-input {
   display: -webkit-box;
@@ -5694,6 +5716,9 @@ input, button, select, textarea {
     appearance: none; }
   .item-input .icon {
     min-width: 14px; }
+
+.platform-windowsphone .item-input input {
+  flex-shrink: 1; }
 
 .item-input-inset {
   display: -webkit-box;
@@ -6293,6 +6318,28 @@ input[type="radio"][disabled], input[type="checkbox"][disabled], input[type="rad
     left: -15px;
     padding: 30px;
     content: ' '; }
+  .range input::-ms-track {
+    background: transparent;
+    border-color: transparent;
+    border-width: 11px 0 16px;
+    color: transparent;
+    margin-top: 20px; }
+  .range input::-ms-thumb {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #fff;
+    border-color: #fff;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);
+    margin-left: 1px;
+    margin-right: 1px;
+    outline: none; }
+  .range input::-ms-fill-lower {
+    height: 2px;
+    background: #444; }
+  .range input::-ms-fill-upper {
+    height: 2px;
+    background: #ccc; }
 
 .range {
   display: -webkit-box;
@@ -6309,21 +6356,39 @@ input[type="radio"][disabled], input[type="checkbox"][disabled], input[type="rad
   padding: 2px 11px; }
   .range.range-light input::-webkit-slider-thumb:before {
     background: #ddd; }
+  .range.range-light input::-ms-fill-lower {
+    background: #ddd; }
   .range.range-stable input::-webkit-slider-thumb:before {
+    background: #b2b2b2; }
+  .range.range-stable input::-ms-fill-lower {
     background: #b2b2b2; }
   .range.range-positive input::-webkit-slider-thumb:before {
     background: #f26222; }
+  .range.range-positive input::-ms-fill-lower {
+    background: #f26222; }
   .range.range-calm input::-webkit-slider-thumb:before {
+    background: #11c1f3; }
+  .range.range-calm input::-ms-fill-lower {
     background: #11c1f3; }
   .range.range-balanced input::-webkit-slider-thumb:before {
     background: #28ABD6; }
+  .range.range-balanced input::-ms-fill-lower {
+    background: #28ABD6; }
   .range.range-assertive input::-webkit-slider-thumb:before {
+    background: #ef473a; }
+  .range.range-assertive input::-ms-fill-lower {
     background: #ef473a; }
   .range.range-energized input::-webkit-slider-thumb:before {
     background: #ffc900; }
+  .range.range-energized input::-ms-fill-lower {
+    background: #ffc900; }
   .range.range-royal input::-webkit-slider-thumb:before {
     background: #c26222; }
+  .range.range-royal input::-ms-fill-lower {
+    background: #c26222; }
   .range.range-dark input::-webkit-slider-thumb:before {
+    background: #444; }
+  .range.range-dark input::-ms-fill-lower {
     background: #444; }
 
 .range .icon {
@@ -6366,6 +6431,9 @@ input[type="radio"][disabled], input[type="checkbox"][disabled], input[type="rad
   padding-right: 5px;
   padding-left: 0; }
 
+.platform-windowsphone .range input {
+  height: auto; }
+
 /**
  * Select
  * --------------------------------------------------
@@ -6378,6 +6446,7 @@ input[type="radio"][disabled], input[type="checkbox"][disabled], input[type="rad
     appearance: none;
     position: absolute;
     top: 0;
+    bottom: 0;
     right: 0;
     padding: 14px 48px 16px 16px;
     max-width: 65%;
@@ -7439,6 +7508,9 @@ a.button {
   .collection-repeat-after-container.horizontal {
     display: inline-block; }
 
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak, .ng-hide:not(.ng-hide-animate) {
+  display: none !important; }
+
 /**
  * Platform
  * --------------------------------------------------
@@ -7612,6 +7684,12 @@ a.button {
 
 .has-subheader {
   top: 79px !important; }
+
+.platform-ios .has-subheader {
+  top: 100px !important; }
+
+.platform-ios .android-more {
+  display: none; }
 
 .bar-subheader {
   height: 37px; }
@@ -7973,7 +8051,7 @@ a.button {
   width: 0%; }
 
 div.progress {
-  height: 3px;
+  height: 2px;
   background-color: #f26222;
   position: relative; }
 
@@ -8029,21 +8107,13 @@ div.progress {
 .gridview .img-wrap .dummy {
   display: none; }
 
-.gridview .img-wrap img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -webkit-transform: translateX(-50%) translateY(-50%);
-  transform: translateX(-50%) translateY(-50%);
-  max-width: auto;
-  max-height: auto;
-  vertical-align: baseline;
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  z-index: -1000;
-  overflow: hidden; }
+.gridview .item {
+  position: relative;
+  background-position: center center;
+  background-size: cover; }
+
+.gridview .img .size, .gridview .img .item-content {
+  visibility: hidden; }
 
 .scroll {
   height: 100%; }

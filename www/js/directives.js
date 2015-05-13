@@ -20,7 +20,7 @@ angular.module('drive.directives', ['drive.services'])
 
 	return directiveDefinitionObject;
     })
-    .directive('videoPlayer', function($rootScope, $window, $timeout) {
+    .directive('videoPlayer', function($rootScope, $window, $timeout, $cordovaDevice) {
         return {
             restrict: 'E',
             scope: {
@@ -42,27 +42,31 @@ angular.module('drive.directives', ['drive.services'])
 		    }
 		    scope.$apply();
 		});
-		// var so = cordova.plugins.screenorientation;
 		angular.element(scope.video).on('click', function(e) {
 		    if (scope.video.requestFullscreen) {
 		    	scope.video.requestFullscreen();
 		    } else if (scope.video.webkitRequestFullscreen) {
 			scope.video.webkitRequestFullscreen();
 		    }
-		    screen.lockOrientation('landscape');
+		    if ($cordovaDevice.getPlatform().toLowerCase() == 'android')
+			screen.lockOrientation('landscape');
 		    StatusBar.hide();
-		    // so.setOrientation(so.Orientation.LANDSCAPE);
 		});
 
 		angular.element(document).on('webkitfullscreenchange', function(e) {
 		    if(!e.currentTarget.webkitIsFullScreen) {
-			screen.unlockOrientation();
+			if ($cordovaDevice.getPlatform().toLowerCase() == 'android')
+			    screen.unlockOrientation();
 			StatusBar.show();
 		    }
 		});
 
             },
-            controller: function($scope, $timeout) {
+            controller: function($scope, $timeout, $ionicPlatform, $cordovaDevice) {
+		$ionicPlatform.ready(function () {
+		    if ($cordovaDevice.getPlatform().toLowerCase() == 'ios')
+			$scope.video.setAttribute("controls","controls");
+		});
                 $scope.playpause = function(base, fileObject, files, nopause) {
 		    if (fileObject && (base + fileObject._fileName != $scope.src || nopause)) {
 			if ($scope.video.src) {
@@ -192,7 +196,7 @@ angular.module('drive.directives', ['drive.services'])
 			$scope.fileObject.progress = 1 - (Math.round(100 * $scope.audio.currentTime / $scope.audio.duration) / 100);
 			$scope.progress = Math.round(1000 * $scope.audio.currentTime / $scope.audio.duration)/10;
 		    }
-		    if ( $scope.audio.duration - $scope.audio.currentTime < 1 ) {
+		    if ( $scope.audio.duration - $scope.audio.currentTime < 2 ) {
 			$timeout(function () {
 			    $scope.audio.currentTime = 0;
 			    if ($scope.fileObject) {
@@ -201,7 +205,7 @@ angular.module('drive.directives', ['drive.services'])
 				$scope.fileObject.progress = 1;
 			    }
 			    $scope.forward(true);
-			}, 1200);
+			}, 2200);
 		    }
 		    $scope.$apply();
 		});

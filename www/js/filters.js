@@ -26,3 +26,18 @@ angular.module('drive.filters', [])
 	    }
 	};
     })
+    .filter('subscriptionsFilter', function($filter) {
+	return function(files, searches) {
+	    if (searches.string) {
+		return $filter('filter')(files, function (item, index) {
+		    return item.toLowerCase().match(searches.string.toLowerCase());
+		});
+	    } else if (searches.folders) {
+		return files;
+	    } else if (searches.images || searches.sounds || searches.docs) {
+		return [];
+	    } else {
+		return files;
+	    }
+	};
+    })
