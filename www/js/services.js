@@ -855,7 +855,7 @@ angular.module('drive.services', ['drive.config'])
 	}
 	return self;
     })
-    .factory('ImageResizer', function ($q, $cordovaFile) {
+    .factory('ImageResizer', function ($q, $cordovaFile, $cordovaDevice) {
 	var self = this;
 	var canvas = document.createElement("canvas");
 	self.resize = function (file, dest, MAX_WIDTH, MAX_HEIGHT) {
@@ -885,6 +885,10 @@ angular.module('drive.services', ['drive.config'])
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.drawImage(image, 0, 0, image.width, image.height);
 
+			if ($cordovaDevice.getPlatform().toLowerCase() == 'ios' && parseInt($cordovaDevice.getVersion()) < 8) {
+			    var mpImg = new MegaPixImage(image);
+			    mpImg.render(canvas, { width: image.width, height: image.height });
+			}
 			var ext = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
 			var buf;
 			if (ext == "png") {

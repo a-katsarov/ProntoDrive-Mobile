@@ -1,5 +1,5 @@
 angular.module('drive.controllers', ['drive.config'])
-    .controller('AppCtrl', function($scope, $ionicModal, $ionicPlatform, Accounts, $cordovaToast, XIMSS, $prefs) {
+    .controller('AppCtrl', function($scope, $ionicModal, $ionicPlatform, Accounts, $cordovaToast, XIMSS, $prefs, $cordovaDevice) {
 	$scope.iface = {};
 	$scope.iface.search = false;
 	$scope.iface.searchString = "";
@@ -27,7 +27,13 @@ angular.module('drive.controllers', ['drive.config'])
 		    $cordovaToast.show(error, 'long', 'bottom');
 		}
 	    );
-	    screen.unlockOrientation();
+	    if ($cordovaDevice.getPlatform().toLowerCase() == 'android')
+		screen.unlockOrientation();
+	    if ($cordovaDevice.getPlatform().toLowerCase() == 'ios' && parseInt($cordovaDevice.getVersion()) < 8) {
+		var script = document.createElement('script');
+		script.src = "lib/megapix/megapix.js";
+		document.getElementsByTagName('head')[0].appendChild(script);
+	    }
 
 	});
 	// Global account management functions
