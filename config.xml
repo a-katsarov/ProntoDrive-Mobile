@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget id="bg.icn.prontodrive" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="bg.icn.prontodrive" version="0.9.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>Pronto!Drive</name>
   <description>
-    The file sharing app for Pronto!
+    Pronto!Drive mobile app
   </description>
   <author email="anton@webface.bg" href="http://www.webface.bg/">
     Anton Katsarov
