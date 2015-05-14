@@ -499,7 +499,7 @@ div.progress {
 }
 .gridview .img .size,
 .gridview .img .item-content {
-    visibility: hidden;
+    opacity: 0.01;
 }
 .scroll {
           height: 100%;
