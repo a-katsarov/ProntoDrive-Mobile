@@ -1,5 +1,6 @@
 angular.module('drive.controllers', ['drive.config'])
-    .controller('AppCtrl', function($scope, $ionicModal, $ionicPlatform, Accounts, $cordovaToast, XIMSS, $prefs, $cordovaDevice) {
+    .controller('AppCtrl', function($scope, $ionicModal, $ionicPlatform, Accounts, $cordovaToast, XIMSS, $prefs, $cordovaDevice, $timeout) {
+	$scope.mpshow = false;
 	$scope.iface = {};
 	$scope.iface.search = false;
 	$scope.iface.searchString = "";
@@ -17,6 +18,9 @@ angular.module('drive.controllers', ['drive.config'])
 	}
 
 	$ionicPlatform.ready(function() {
+	    $timeout(function () {
+		$scope.mpshow = true;
+	    }, 1000);
 	    Accounts.all().then(
 		function (accounts) {
 		    if (! accounts[0]) {

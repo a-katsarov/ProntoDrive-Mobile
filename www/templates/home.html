@@ -114,11 +114,11 @@
       <button class="button button-clear icon icon-top ion-image" ng-class="{'button-positive': searches.images}" wf-tap="toggleFilter('images')">
     	Images
       </button>
-      <button class="button button-clear icon icon-top ion-ios-play" wf-tap="iface.audioControls.togglePanel()" ng-hide="iface.audioControls.paused()">
+      <button ng-if="mpshow"  class="button button-clear icon icon-top ion-ios-play" wf-tap="iface.audioControls.togglePanel()" ng-hide="!mpshow || iface.audioControls.paused()">
     	Playing
       </button>
-      <button class="button button-clear icon icon-top ion-ios-play" wf-tap="iface.videoControls.togglePanel()" ng-hide="iface.videoControls.paused()">
-    	Playing
+      <button ng-if="mpshow" class="button button-clear icon icon-top ion-ios-play" wf-tap="iface.videoControls.togglePanel()" ng-hide="!mpshow || iface.videoControls.paused()">
+    	  Playing
       </button>
     </div>
   </ion-footer-bar>

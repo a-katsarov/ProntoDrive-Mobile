@@ -140,7 +140,7 @@ angular.module('drive.directives', ['drive.services'])
 		paused: "=",
 		progress: "="
 	    },
-            controller: function($scope, $element, $window, $timeout) {
+            controller: function($scope, $timeout) {
 		$scope.progress = 1;
 		$scope.paused = true;
 	    },
@@ -153,7 +153,7 @@ angular.module('drive.directives', ['drive.services'])
             scope: {
 		controls: "="
 	    },
-            controller: function($scope, $element, $window, $timeout) {
+            controller: function($scope, $timeout) {
                 $scope.audio = new Audio();
 		$scope.audio.paused = true;
 		$scope.fileObject = {};
@@ -242,4 +242,14 @@ angular.module('drive.directives', ['drive.services'])
 
             templateUrl: 'templates/audio-player-skin.html'
         };
+    })
+    .directive('mediaPlayers', function($compile, $timeout){
+	return {
+	    link: function(scope, element, attrs) {
+		scope.mediaPlayers = element;
+		$timeout(function () {
+		    element.replaceWith($compile('<audio-player controls="iface.audioControls"></audio-player><video-player controls="iface.videoControls"></video-player>')(scope));
+		}, 1000);
+	    }
+	}
     })
