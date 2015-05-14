@@ -930,6 +930,7 @@ angular.module('drive.controllers', ['drive.config'])
 	    $scope.iface.videoControls.playFile(basePath.base + $scope.path, file, videos);
 	};
 	$ionicPlatform.ready(function() {
+	    $scope.ready = true;
 	    $scope.noconnection = $cordovaNetwork.isOffline();
 	    StatusBar.show();
 	    $prefs.get("gridView").then(
@@ -937,6 +938,9 @@ angular.module('drive.controllers', ['drive.config'])
 		    $scope.iface.grid = state;
 		}
 	    );
+	    if ($cordovaNetwork.isOnline()) {
+		$scope.listFolder();
+	    }
 	});
 	if ($scope.path) {
 	    $scope.noconnection = $cordovaNetwork.isOffline();
@@ -945,7 +949,9 @@ angular.module('drive.controllers', ['drive.config'])
 	    $scope.listFolder();
 	});
 	document.addEventListener("online", function (e) {
-	    $scope.listFolder();
+	    if ($scope.ready) {
+		$scope.listFolder();
+	    }
 	    $scope.noconnection = false;
 	}, false);
     })
