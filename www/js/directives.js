@@ -62,7 +62,7 @@ angular.module('drive.directives', ['drive.services'])
 		});
 
             },
-            controller: function($scope, $timeout, $ionicPlatform, $cordovaDevice) {
+            controller: function($scope, $ionicPlatform, $cordovaDevice) {
 		$ionicPlatform.ready(function () {
 		    if ($cordovaDevice.getPlatform().toLowerCase() == 'ios')
 			$scope.video.setAttribute("controls","controls");
@@ -140,7 +140,7 @@ angular.module('drive.directives', ['drive.services'])
 		paused: "=",
 		progress: "="
 	    },
-            controller: function($scope, $timeout) {
+            controller: function($scope) {
 		$scope.progress = 1;
 		$scope.paused = true;
 	    },
@@ -153,7 +153,7 @@ angular.module('drive.directives', ['drive.services'])
             scope: {
 		controls: "="
 	    },
-            controller: function($scope, $timeout) {
+            controller: function($scope) {
                 $scope.audio = new Audio();
 		$scope.audio.paused = true;
 		$scope.fileObject = {};
@@ -196,8 +196,7 @@ angular.module('drive.directives', ['drive.services'])
 			$scope.fileObject.progress = 1 - (Math.round(100 * $scope.audio.currentTime / $scope.audio.duration) / 100);
 			$scope.progress = Math.round(1000 * $scope.audio.currentTime / $scope.audio.duration)/10;
 		    }
-		    if ( $scope.audio.duration - $scope.audio.currentTime < 2 ) {
-			$timeout(function () {
+		    if ( $scope.audio.duration - $scope.audio.currentTime < 0.5 && $scope.audio.currentTime > 1) {
 			    $scope.audio.currentTime = 0;
 			    if ($scope.fileObject) {
 				$scope.fileObject.paused = true;
@@ -205,7 +204,6 @@ angular.module('drive.directives', ['drive.services'])
 				$scope.fileObject.progress = 1;
 			    }
 			    $scope.forward(true);
-			}, 2200);
 		    }
 		    $scope.$apply();
 		});
