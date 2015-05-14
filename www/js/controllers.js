@@ -392,7 +392,7 @@ angular.module('drive.controllers', ['drive.config'])
 				    });
 				},
 				function (error) {
-				    $cordovaToast.show(error, 'long', 'bottom');
+				    // $cordovaToast.show(error, 'long', 'bottom');
 				}
 			    );
 			} else if (baseIndex + index == 3) {
@@ -644,7 +644,7 @@ angular.module('drive.controllers', ['drive.config'])
 			}
 		    },
 		    function (error) {
-			$cordovaToast.show(error, 'long', 'bottom');
+			// $cordovaToast.show(error, 'long', 'bottom');
 		    }
 		);
 	    }

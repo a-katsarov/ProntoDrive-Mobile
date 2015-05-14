@@ -20,7 +20,7 @@ angular.module('drive.directives', ['drive.services'])
 
 	return directiveDefinitionObject;
     })
-    .directive('videoPlayer', function($rootScope, $window, $timeout, $cordovaDevice) {
+    .directive('videoPlayer', function($rootScope, $timeout, $cordovaDevice) {
         return {
             restrict: 'E',
             scope: {
