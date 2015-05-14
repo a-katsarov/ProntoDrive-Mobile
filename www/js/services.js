@@ -793,7 +793,7 @@ angular.module('drive.services', ['drive.config'])
 	    }
 	}
     })
-    .factory('Opener', function () {
+    .factory('Opener', function ($cordovaDevice) {
 	var self = this;
 	self.open = function (fullPath) {
 	    if ($cordovaDevice.getPlatform().toLowerCase() == 'android') {
