@@ -14,9 +14,3 @@ angular.module('drive.config', [])
 	    }
 	]
     })
-    .constant('IMAGES_CONFIG', {
-	thMaxWidth: 200,
-	thMaxHeight: 200,
-	previewMaxWidth: 1000,
-	previewMaxHeight: 1000
-    })

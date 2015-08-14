@@ -33,6 +33,24 @@ angular.module('drive.controllers', ['drive.config'])
 	    );
 	    if ($cordovaDevice.getPlatform().toLowerCase() == 'android')
 		screen.unlockOrientation();
+	    // Calculate image sizes
+	    var pixelRatio = window.devicePixelRatio || 1;
+	    var screenWidth = Math.ceil(window.innerWidth * pixelRatio);
+	    var screenHeight = Math.ceil(window.innerHeight * pixelRatio);
+
+	    window.maxImageSize = screenWidth;
+	    if (screenHeight > screenWidth) window.maxImageSize = screenHeight;
+
+	    var imagesPerRow = 2;
+	    if (window.innerWidth >= 800) imagesPerRow = 3;
+	    if (window.innerWidth >= 1024) imagesPerRow = 4;
+	    if (window.innerWidth >= 1440) imagesPerRow = 5;
+	    var imagesPerCol = 2;
+	    if (window.innerHeight >= 800) imagesPerCol = 3;
+	    if (window.innerHeight >= 1024) imagesPerCol = 4;
+	    if (window.innerHeight >= 1440) imagesPerCol = 5;
+	    window.maxThumbnailSize = Math.ceil(screenWidth / imagesPerRow);
+	    if (screenWidth / imagesPerRow <= screenHeight / imagesPerCol) window.maxThumbnailSize = Math.ceil(screenHeight / imagesPerCol);
 	});
 	// Global account management functions
 	// show add account dialg
@@ -96,7 +114,7 @@ angular.module('drive.controllers', ['drive.config'])
 	    return Math.round(10 * bytes / Math.pow(k, i))/10  + sizes[i];
 	};
     })
-    .controller('HomeCtrl', function($scope, $stateParams, $ionicActionSheet, $ionicPlatform, $ionicLoading, basePath, XIMSS, $timeout, $filter, $cordovaFile, $prefs, $ionicScrollDelegate, $ionicPopup, $cordovaFileTransfer, $cordovaToast, Accounts, $cordovaClipboard, $ionicModal, Opener, Downloader, $rootScope, $state, ImageResizer, IMAGES_CONFIG, $cordovaSocialSharing, $q, $cordovaNetwork) {
+    .controller('HomeCtrl', function($scope, $stateParams, $ionicActionSheet, $ionicPlatform, $ionicLoading, basePath, XIMSS, $timeout, $filter, $cordovaFile, $prefs, $ionicScrollDelegate, $ionicPopup, $cordovaFileTransfer, $cordovaToast, Accounts, $cordovaClipboard, $ionicModal, Opener, Downloader, $rootScope, $state, ImageResizer, $cordovaSocialSharing, $q, $cordovaNetwork) {
 	$scope.searches = {};
 	$scope.path = $stateParams.path;
 	var folders = $scope.path.split("/");
@@ -653,9 +671,9 @@ angular.module('drive.controllers', ['drive.config'])
 		var folder = file.substring(0,file.lastIndexOf('/') + 1);
 		var filename = file.substring(file.lastIndexOf('/') + 1);
 		$cordovaFile.createDir(folder, ".thumb", true).then( function () {
-		    ImageResizer.resize(file, folder + ".thumb/" + filename, IMAGES_CONFIG.thMaxWidth, IMAGES_CONFIG.thMaxHeight).then( function () {
+		    ImageResizer.resize(file, folder + ".thumb/" + filename, window.maxThumbnailSize, window.maxThumbnailSize).then( function () {
 			$cordovaFile.createDir(folder, ".preview", true).then( function () {
-			    ImageResizer.resize(file, folder + ".preview/" + filename, IMAGES_CONFIG.previewMaxWidth, IMAGES_CONFIG.previewMaxHeight).then( function () {
+			    ImageResizer.resize(file, folder + ".preview/" + filename, window.maxImageSize, window.maxImageSize).then( function () {
 				item.loading = false;
 				item.img = true;
 				q.resolve(1);
