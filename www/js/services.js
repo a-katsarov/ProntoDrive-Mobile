@@ -860,87 +860,59 @@ angular.module('drive.services', ['drive.config'])
 	var canvas = document.createElement("canvas");
 	self.resize = function (file, dest, MAX_WIDTH, MAX_HEIGHT) {
 	    var q = $q.defer();
-	    window.ImageResizer.resize(
-		{
-	    	    uri: file,
-	    	    folderName: "tmp",
-	    	    quality: 90,
-	    	    width: MAX_WIDTH,
-	    	    height: MAX_HEIGHT
-		},
-	    	function (image) {
-		    var src_folder = image.substring(0,image.lastIndexOf('/') + 1);
-		    var src_filename = image.substring(image.lastIndexOf('/') + 1);
-		    var dest_folder = dest.substring(0,dest.lastIndexOf('/') + 1);
-		    var dest_filename = dest.substring(dest.lastIndexOf('/') + 1);
-		    $cordovaFile.moveFile(src_folder, src_filename, dest_folder, dest_filename).then(
-			function () {
-			    q.resolve(1);
-			},
-			function (err) {
-			    console.log("Error: " + err);
-			    q.reject(err);
+	    var folder = file.substring(0,file.lastIndexOf('/') + 1);
+	    var filename = file.substring(file.lastIndexOf('/') + 1);
+	    $cordovaFile.readAsDataURL(folder, filename).then(
+		function (data) {
+		    var image = new Image();
+		    image.onload = function () {
+			// Calculate image size
+			if (image.width > image.height) {
+			    if (image.width > MAX_WIDTH) {
+				image.height *= MAX_WIDTH / image.width;
+				image.width = MAX_WIDTH;
+			    }
+			} else {
+			    if (image.height > MAX_HEIGHT) {
+				image.width *= MAX_HEIGHT / image.height;
+				image.height = MAX_HEIGHT;
+			    }
 			}
-		    );
-	    	},
-	    	function (err) {
-		    console.log("Some error: " + err);
-	    	    q.reject(err);
-	    	}
+
+			var ctx = canvas.getContext("2d");
+			canvas.width = image.width;
+			canvas.height = image.height;
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.drawImage(image, 0, 0, image.width, image.height);
+			// Add megapix image hack for larger images on some devices
+			var mpImg = new MegaPixImage(image);
+			mpImg.render(canvas, { width: image.width, height: image.height });
+			var ext = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
+			var buf;
+			if (ext == "png") {
+			    buf =  _base64ToArrayBuffer(canvas.toDataURL("image/png"));
+			} else {
+			    buf =  _base64ToArrayBuffer(canvas.toDataURL("image/jpeg", 0.5));
+			}
+
+			var filename = dest.substring(dest.lastIndexOf('/') + 1);
+			var folder = dest.substring(0,dest.lastIndexOf('/') + 1);
+			$cordovaFile.writeFile(folder, filename, buf, true).then(
+			    function () {
+				q.resolve(1);
+				delete image;
+			    },
+			    function (err) {
+				console.log(JSON.stringify(err));
+				q.reject(err)
+				delete image;
+			    });
+		    };
+		    image.src = data;
+		}, function (err) {
+		    q.reject(err);
+		}
 	    );
-	    // $cordovaFile.readAsDataURL(folder, filename).then(
-	    // 	function (data) {
-	    // 	    var image = new Image();
-	    // 	    image.onload = function () {
-	    // 		// Calculate image size
-	    // 		if (image.width > image.height) {
-	    // 		    if (image.width > MAX_WIDTH) {
-	    // 			image.height *= MAX_WIDTH / image.width;
-	    // 			image.width = MAX_WIDTH;
-	    // 		    }
-	    // 		} else {
-	    // 		    if (image.height > MAX_HEIGHT) {
-	    // 			image.width *= MAX_HEIGHT / image.height;
-	    // 			image.height = MAX_HEIGHT;
-	    // 		    }
-	    // 		}
-
-	    // 		var ctx = canvas.getContext("2d");
-	    // 		canvas.width = image.width;
-	    // 		canvas.height = image.height;
-	    // 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-	    // 		ctx.drawImage(image, 0, 0, image.width, image.height);
-
-	    // 		if ($cordovaDevice.getPlatform().toLowerCase() == 'ios' && parseInt($cordovaDevice.getVersion()) < 8) {
-	    // 		    var mpImg = new MegaPixImage(image);
-	    // 		    mpImg.render(canvas, { width: image.width, height: image.height });
-	    // 		}
-	    // 		var ext = file.substring(file.lastIndexOf('.') + 1).toLowerCase();
-	    // 		var buf;
-	    // 		if (ext == "png") {
-	    // 		    buf =  _base64ToArrayBuffer(canvas.toDataURL("image/png"));
-	    // 		} else {
-	    // 		    buf =  _base64ToArrayBuffer(canvas.toDataURL("image/jpeg", 0.5));
-	    // 		}
-
-	    // 		var filename = dest.substring(dest.lastIndexOf('/') + 1);
-	    // 		var folder = dest.substring(0,dest.lastIndexOf('/') + 1);
-	    // 		$cordovaFile.writeFile(folder, filename, buf, true).then(
-	    // 		    function () {
-	    // 			q.resolve(1);
-	    // 			delete image;
-	    // 		    },
-	    // 		    function (err) {
-	    // 			console.log(JSON.stringify(err));
-	    // 			q.reject(err)
-	    // 			delete image;
-	    // 		    });
-	    // 	    };
-	    // 	    image.src = data;
-	    // 	}, function (err) {
-	    // 	    q.reject(err);
-	    // 	}
-	    // );
 	    return q.promise;
 	}
 	return self;
